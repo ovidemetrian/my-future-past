@@ -7,6 +7,15 @@ A job application built as a vinyl record player. Three sides, narrated, in one 
 
 **🔗 Live:** https://ovidemetrian.github.io/my-future-past/
 
+**🔊 Live audio (playable):**
+
+- [Play “Never_Let_AI_Finish_Your_Thoughts _.mp3”](https://raw.githubusercontent.com/ovidemetrian/my-future-past/main/Never_Let_AI_Finish_Your_Thoughts%20_.mp3)
+
+<audio controls>
+  <source src="https://raw.githubusercontent.com/ovidemetrian/my-future-past/main/Never_Let_AI_Finish_Your_Thoughts%20_.mp3" type="audio/mpeg">
+  Your browser does not support the audio element. Click the link above to download or play the file.
+</audio>
+
 ---
 
 ## The Three Sides
