@@ -1,80 +1,85 @@
 # My Future Past
 
-**An audio-player résumé.**
-Ovidiu Demetrian · Phoenix, Arizona
+**An audio-player résumé.**  
+*Lumină, nu vrăjeală. (Light, not deception.)*
 
-A job application built as a record player. Three sides, narrated, in a single
-HTML file — no framework, no bundler, no build step, no dependencies.
+A job application built as a vinyl record player. Three sides, narrated, in one HTML file — no framework, no bundler, no build step, no dependencies.
 
-> *Lumină, nu vrăjală.*
-> Light, not deception.
+**🔗 Live:** https://ovidemetrian.github.io/my-future-past/
 
 ---
 
-## The three sides
+## The Three Sides
 
 | Side | Contents |
 |------|----------|
-| **Résumé** | Contact, business history from 1994, product development, core technical skills |
-| **Cover Letter** | Written for the Product Manager role at Suno |
-| **Extra Stuff** | The portfolio — GGI framework, the Ten Laws, submissions and outreach |
+| **Résumé** | Contact · Business history from 1994 · Product development · Core technical skills |
+| **Cover Letter** | Written for Product Manager role at Suno |
+| **Extra Stuff** | Portfolio — GGI framework, Ten Laws of AI, submissions and outreach |
 
-Press play and the page reads itself aloud, highlighting each word as it is
-spoken. The transport bar controls narration the way it would control a record.
-
----
-
-## What is in here
-
-- **Splash** — the title card, dismissed by tap or key
-- **Narration** with word-by-word highlighting, driven by the browser's own speech engine
-- **A spatial audio demonstration** — head-tracked binaural panning, built to show what the work actually sounds like rather than describe it
-- **On The Record** — the index of everything: sites, frameworks, tracks
-- **The Bottom Line** — a pocket studio with VU meters and a gramophone
-- **Three floating objects** you can drag, throw, and hold:
-
-| Object | Hold four seconds |
-|--------|-------------------|
-| Cassette | Opens the spatial audio demonstration |
-| CD | Opens On The Record |
-| Black vinyl, red label | Opens the [Möbius Bar Desk](https://ovidemetrian.github.io/mobiusbar/) |
-
-Reduced-motion preferences are honoured throughout — every animation checks
-`prefers-reduced-motion` before it runs.
+Press play and the page reads itself aloud, highlighting each word as it's spoken. Transport controls work like a record player.
 
 ---
 
-## Built with
+## What's Inside
 
-Vanilla HTML, CSS and JavaScript. One file, roughly 890 KB, audio and artwork
-embedded. Written entirely on an Android phone.
+- **Splash screen** — dismissed by tap or key
+- **Word-by-word narration** — driven by browser's Web Speech API with highlighting
+- **Spatial audio demonstration** — head-tracked binaural panning (shows what the work actually sounds like)
+- **On The Record** — complete index of sites, frameworks, and tracks
+- **The Bottom Line** — pocket studio with VU meters and gramophone
+- **Three draggable objects:**
+  - **Cassette** (hold 4 sec) → Opens spatial audio demo
+  - **CD** (hold 4 sec) → Opens On The Record index
+  - **Black vinyl, red label** (hold 4 sec) → Opens Möbius Bar Desk
 
-Thirty years of audio-video integration inform the design principle underneath
-it: *the interface is the instrument*, and technology should disappear so the
-human experience remains.
-
----
-
-## Also at this desk
-
-- **Möbius Bar Desk** → [ovidemetrian.github.io/mobiusbar](https://ovidemetrian.github.io/mobiusbar/) — three GGI agents that check each other
-- **Ten Laws of AI** → [10lawsofai.com](https://10lawsofai.com)
-- **Möbius Bar** → [youtube.com/@mobiusbar](https://youtube.com/@mobiusbar)
-- **Smart Homes by Ovi** → [smarthomesbyovi.com](https://smarthomesbyovi.com)
-- **Media Content Delivery** → [mediacontentdelivery.com](https://mediacontentdelivery.com)
+Reduced-motion preferences honored throughout — every animation checks `prefers-reduced-motion` before running.
 
 ---
 
-## Deploy
+## Built With
 
-1. Create a repository.
-2. Upload `index.html` and this `README.md` to the root.
-3. **Settings → Pages → Deploy from a branch → `main` → `/(root)` → Save.**
-4. The URL appears in the banner on that page once the build finishes.
+**Vanilla HTML5 + CSS3 + JavaScript**  
+One file, ~890 KB (audio & artwork embedded)  
+Written entirely on an Android phone
 
-The repository name becomes part of the URL, and it is case-sensitive.
+30 years of audio-video integration inform the design principle: **The interface is the instrument** — technology disappears so the human experience remains.
 
 ---
 
-**Ovidiu Demetrian**
+## Technical Details
+
+- **Single `index.html`** — no framework, no build process, no dependencies
+- **Web Speech API** — native browser text-to-speech with word-highlighting
+- **Web Audio API** — spatial audio with head-tracking (binaural panning)
+- **Draggable DOM elements** — physics-based throwing with constraints
+- **Accessibility-first** — keyboard navigation, `prefers-reduced-motion` honored
+- **Zero external requests** — all audio and artwork embedded as data URIs
+- **Mobile-optimized** — full touch support, responsive layout
+
+---
+
+## Deploy on GitHub Pages
+
+1. Create a repository
+2. Upload `index.html` and `README.md` to the root
+3. **Settings → Pages → Deploy from a branch → `main` → `/(root)` → Save**
+4. The URL appears in the banner once the build finishes
+
+The repository name becomes part of the URL and is case-sensitive.
+
+---
+
+## Also See
+
+- **Möbius Bar Desk** (News verification with three checking agents) → https://ovidemetrian.github.io/mobiusbar/
+- **GGI Control Panel** (AGI governance framework) → https://ovidemetrian.github.io/GGI-GENIAL-GENUINE-INTELIGENCE/
+- **NoEscape Navigator** (Dark pattern museum) → https://ovidemetrian.github.io/Netscape/
+- **Ten Laws of AI** → https://10lawsofai.com
+
+---
+
+**Built by Ovidiu "Ovi" Demetrian**  
 *GGI · Synthiosis · Eternal Bartender*
+
+> "The interface is the instrument. Technology should disappear so the human experience remains."
