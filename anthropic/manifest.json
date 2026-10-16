@@ -1,0 +1,13 @@
+{
+  "name": "Ovi Demetrian · Run of Show",
+  "short_name": "Run of Show",
+  "description": "Ovi Demetrian, AV Production Specialist: a résumé cued like a live production.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0e1014",
+  "theme_color": "#0e1014",
+  "icons": [
+    {"src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any"}
+  ]
+}
