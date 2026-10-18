@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#13151b"><link rel="manifest" href="manifest.json"><link rel="icon" href="icon.svg"><link rel="apple-touch-icon" href="icon.svg"><title>Director's Desk</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}
+/* Layout: a broadcast desk on a tablet. Header carries tallies + HUSH; body splits into faders | Claude cue desk. Single committed dark look (venue at show time). */
+:root{
+  --bg:#13151b; --panel:#1c1f28; --panel2:#232733; --line:#2e3341;
+  --fg:#ece9e1; --dim:#8e94a4;
+  --red:#ff4040; --yellow:#ffcc3d; --blue:#4a90ff; --ok:#3fd99a;
+  --display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+html,body{background:var(--bg);color:var(--fg)}
+body{font-family:var(--body);font-size:15px;line-height:1.45}
+*{box-sizing:border-box}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--yellow);outline-offset:2px}
+.wrap{max-width:1280px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:12px 28px;display:grid;gap:14px}
+.lbl{font-family:var(--display);font-weight:600;letter-spacing:.08em;text-transform:uppercase;font-size:13px;color:var(--dim)}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+/* Header */
+.bar{display:flex;flex-wrap:wrap;align-items:center;gap:12px 18px;padding:12px 14px;background:var(--panel);border:1px solid var(--line);border-radius:10px}
+.brand{min-width:0;flex:1 1 220px}
+.brand h1{margin:0;font-family:var(--display);font-weight:700;font-size:28px;letter-spacing:.02em;line-height:1}
+.brand p{margin:4px 0 0;color:var(--dim);font-size:13px}
+.tallies{display:flex;gap:8px;flex-wrap:wrap}
+.tally{display:flex;align-items:center;gap:7px;padding:6px 10px;border-radius:6px;background:var(--panel2);border:1px solid var(--line);font-family:var(--display);font-weight:600;letter-spacing:.08em;font-size:13px;text-transform:uppercase}
+.tally i{width:10px;height:10px;border-radius:50%;background:var(--line)}
+.tally.on-red i{background:var(--red);box-shadow:0 0 10px var(--red)}
+.tally.on-ok i{background:var(--ok);box-shadow:0 0 8px var(--ok)}
+.tally.on-blue i{background:var(--blue);box-shadow:0 0 8px var(--blue)}
+.tally.on-yellow i{background:var(--yellow);box-shadow:0 0 8px var(--yellow)}
+.clock{font-size:20px}
+.hush{position:relative;overflow:hidden;min-width:150px;padding:14px 20px;border-radius:10px;border:2px solid var(--red);background:transparent;color:var(--red);font-family:var(--display);font-weight:700;font-size:24px;letter-spacing:.14em;cursor:pointer;touch-action:manipulation}
+.hush small{display:block;font-family:var(--body);font-weight:500;font-size:11px;letter-spacing:.02em;color:var(--fg);opacity:.75}
+.hush.engaged{background:var(--red);color:#1a0000}
+.hush.engaged small{color:#1a0000}
+.hush .hold{position:absolute;left:0;bottom:0;height:4px;width:0;background:var(--fg)}
+
+/* Grid */
+.grid{display:grid;gap:14px;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);grid-template-areas:"strips cue" "scenes cue"}
+@media (max-width:880px){.grid{grid-template-columns:minmax(0,1fr);grid-template-areas:"scenes" "cue" "strips"}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;min-width:0}
+.panel>header{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:10px}
+.panel h2{margin:0;font-family:var(--display);font-weight:700;font-size:20px;letter-spacing:.04em;text-transform:uppercase}
+
+/* Strips */
+#strips{grid-area:strips}
+.strip{display:grid;grid-template-columns:minmax(0,9rem) minmax(0,1fr) 4.2rem 4.4rem;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
+.strip:first-of-type{border-top:0}
+.strip .nm{font-weight:600;line-height:1.15}
+.strip .nm small{display:block;font-weight:400;color:var(--dim);font-size:12px}
+.fadercol{display:grid;gap:6px;min-width:0}
+.meter{height:8px;border-radius:3px;background:var(--panel2);overflow:hidden;position:relative}
+.meter b{position:absolute;inset:0 auto 0 0;width:0;background:linear-gradient(90deg,var(--ok) 0 70%,var(--yellow) 70% 88%,var(--red) 88%)}
+input[type=range]{width:100%;accent-color:var(--fg);margin:0;height:26px}
+.db{text-align:right;font-size:14px}
+.mute{padding:9px 0;border-radius:7px;border:1px solid var(--line);background:var(--panel2);font-family:var(--display);font-weight:700;letter-spacing:.1em;font-size:15px;cursor:pointer}
+.mute.live{border-color:var(--ok);color:var(--ok)}
+.mute.muted{background:var(--red);border-color:var(--red);color:#1a0000}
+.strip.hushed .nm,.strip.hushed .fadercol{opacity:.4}
+@media (max-width:520px){.strip{grid-template-columns:minmax(0,1fr) 4.4rem;grid-template-areas:"nm mute" "fd fd"}.strip .nm{grid-area:nm}.strip .mute{grid-area:mute}.strip .fadercol{grid-area:fd}.strip .db{display:none}.fadercol .dbm{display:block}}
+.dbm{display:none;font-size:12px;color:var(--dim)}
+
+/* Scenes */
+#scenes{grid-area:scenes;display:grid;gap:14px}
+.btnrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px}
+.sel{padding:12px 8px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);font-family:var(--display);font-weight:600;font-size:17px;letter-spacing:.05em;cursor:pointer;text-transform:uppercase}
+.sel.active{border-color:var(--yellow);color:var(--yellow);box-shadow:inset 0 0 0 1px var(--yellow)}
+.sel.cam.active{border-color:var(--red);color:var(--red);box-shadow:inset 0 0 0 1px var(--red)}
+.confirm{border:2px solid var(--yellow);border-radius:9px;padding:12px;display:grid;gap:10px;background:color-mix(in srgb,var(--yellow) 8%,var(--panel))}
+.confirm p{margin:0}
+.confirm .row{display:flex;gap:8px;flex-wrap:wrap}
+.act{padding:10px 14px;border-radius:7px;border:1px solid var(--line);background:var(--panel2);font-weight:600;cursor:pointer}
+.act.danger{background:var(--red);border-color:var(--red);color:#1a0000}
+
+/* Cue desk */
+#cue{grid-area:cue;display:grid;gap:12px;align-content:start}
+.who{font-size:13px;color:var(--dim)}
+.who b{color:var(--blue);font-weight:600}
+form.cueform{display:flex;gap:8px}
+#cueInput{flex:1;min-width:0;padding:13px 14px;border-radius:9px;border:1px solid var(--line);background:var(--bg);color:var(--fg);font:inherit;font-size:16px}
+#cueInput:focus{border-color:var(--blue);outline:none}
+.go{padding:0 20px;border-radius:9px;border:0;background:var(--blue);color:#06142b;font-family:var(--display);font-weight:700;font-size:20px;letter-spacing:.1em;cursor:pointer}
+.go[disabled]{opacity:.5}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{padding:7px 11px;border-radius:999px;border:1px solid var(--line);background:var(--panel2);font-size:13px;cursor:pointer}
+.chip:hover{border-color:var(--blue)}
+.reply{min-height:3.2em;padding:12px 14px;border-radius:9px;background:var(--panel2);border-left:3px solid var(--blue);display:flex;gap:10px;align-items:flex-start;justify-content:space-between}
+.reply p{margin:0;min-width:0}
+.reply .stop{flex:none;padding:4px 10px;border-radius:6px;border:1px solid var(--line);background:transparent;cursor:pointer;font-size:13px}
+.log{list-style:none;margin:0;padding:0;max-height:360px;overflow:auto;display:grid;gap:2px;font-size:13px}
+.log li{display:grid;grid-template-columns:4.6rem 4.4rem minmax(0,1fr);gap:8px;padding:5px 4px;border-bottom:1px solid var(--line)}
+.log .t{color:var(--dim)}
+.log .src{font-family:var(--display);font-weight:700;letter-spacing:.08em}
+.src.DIR{color:var(--yellow)} .src.CLAUDE{color:var(--blue)} .src.CORE{color:var(--ok)} .src.FAIL{color:var(--red)}
+.log .msg{min-width:0;overflow-wrap:anywhere}
+
+footer.foot{display:flex;flex-wrap:wrap;gap:10px 20px;justify-content:space-between;align-items:center;color:var(--dim);font-size:13px}
+.toggle{display:flex;align-items:center;gap:8px;cursor:pointer}
+.toggle input{width:18px;height:18px;accent-color:var(--yellow)}
+.credit b{color:var(--fg);font-family:var(--display);letter-spacing:.06em;font-weight:600}
+@media (prefers-reduced-motion:reduce){.meter b{transition:none}}
+</style></head><body>
+
+<div class="wrap">
+  <header class="bar">
+    <div class="brand">
+      <h1>Director's Desk</h1>
+      <p>Hall A · 200 seats · hybrid on Google Meet · <b>simulated</b> Q-SYS Core</p>
+    </div>
+    <div class="tallies">
+      <span class="tally" id="tStream"><i></i><span>Stream</span></span>
+      <span class="tally on-ok" id="tCore"><i></i>Core</span>
+      <span class="tally" id="tClaude"><i></i><span id="tClaudeTxt">Claude</span></span>
+      <span class="tally"><span class="clock num" id="clock">--:--:--</span></span>
+    </div>
+    <button class="hush" id="hush" type="button" aria-pressed="false">HUSH<small id="hushSub">Human only · tap to engage</small><span class="hold" id="hushHold"></span></button>
+  </header>
+
+  <main class="grid">
+    <section class="panel" id="strips" aria-label="Channel strips">
+      <header><h2>Audio</h2><span class="lbl">dB · 0 = unity</span></header>
+      <div id="stripList"></div>
+    </section>
+
+    <section id="scenes">
+      <div class="panel">
+        <header><h2>Scenes</h2><span class="lbl" id="sceneNow">—</span></header>
+        <div class="btnrow" id="presetRow"></div>
+      </div>
+      <div class="panel">
+        <header><h2>Camera</h2><span class="lbl">PTZ presets</span></header>
+        <div class="btnrow" id="camRow"></div>
+      </div>
+      <div class="panel">
+        <header><h2>Stream</h2><span class="lbl" id="streamNow">—</span></header>
+        <div class="btnrow">
+          <button class="sel" type="button" id="streamStart">Go live</button>
+          <button class="sel" type="button" id="streamEnd">End stream</button>
+        </div>
+        <div class="confirm" id="confirmCard" hidden style="margin-top:12px">
+          <p><b>Claude asks to end the stream.</b> Ending is a human decision. Confirm or keep it live.</p>
+          <div class="row">
+            <button class="act danger" type="button" id="confirmEnd">End stream</button>
+            <button class="act" type="button" id="confirmKeep">Keep live</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="cue" aria-label="Claude cue desk">
+      <header><h2>Cue Claude</h2><span class="lbl">you direct · Claude operates</span></header>
+      <div class="who" id="who">Type a cue the way you'd call it on headset. Dictate with your keyboard's mic for hands-free.</div>
+      <form class="cueform" id="cueForm">
+        <input id="cueInput" autocomplete="off" placeholder="e.g. Q&A, open audience mic two" aria-label="Cue">
+        <button class="go" id="goBtn" type="submit">GO</button>
+      </form>
+      <div class="chips" id="chips"></div>
+      <div class="reply" id="replyBox"><p id="reply">Standing by.</p><button class="stop" id="stopBtn" type="button" hidden>Stop</button></div>
+      <div>
+        <header style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px"><span class="lbl">Show log</span><span class="lbl">sent → read back</span></header>
+        <ul class="log" id="log"></ul>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <label class="toggle"><input type="checkbox" id="fault"> Test mode: Core drops 1 in 4 Claude commands</label>
+    <span class="credit"><b>Concept by Ovi</b> · built with Claude · simulation, no real equipment</span>
+  </footer>
+</div>
+
+<script>
+(function(){
+const $=s=>document.querySelector(s);
+const CH=[
+  {id:'pres',name:'Presenter',sub:'Lavalier · RF 1',mic:true},
+  {id:'aud1',name:'Audience 1',sub:'Handheld · RF 2',mic:true},
+  {id:'aud2',name:'Audience 2',sub:'Handheld · RF 3',mic:true},
+  {id:'remote',name:'Remote voices',sub:'Meet return',mic:false},
+  {id:'play',name:'Playback',sub:'Video PC · stereo',mic:false}
+];
+const PRESETS={
+  walkin:{label:'Walk-in',ch:{pres:[-60,true],aud1:[-60,true],aud2:[-60,true],remote:[-10,true],play:[-12,false]},cam:'wide'},
+  presentation:{label:'Presentation',ch:{pres:[0,false],aud1:[-6,true],aud2:[-6,true],remote:[0,false],play:[-12,true]},cam:'presenter'},
+  qa:{label:'Q&A',ch:{pres:[-3,false],aud1:[-4,true],aud2:[-4,true],remote:[0,false],play:[-12,true]},cam:'audience'},
+  brk:{label:'Break',ch:{pres:[-60,true],aud1:[-60,true],aud2:[-60,true],remote:[-10,true],play:[-14,false]},cam:'wide'}
+};
+const CAMS={wide:'Wide',presenter:'Presenter',audience:'Audience'};
+
+/* The simulated Core: the single source of truth the panel reads back from. */
+const core={ch:{},cam:'presenter',stream:'live',preset:'presentation'};
+for(const c of CH){const p=PRESETS.presentation.ch[c.id];core.ch[c.id]={level:p[0],mute:p[1]};}
+let hush=false, pendingEnd=false, fault=false;
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+
+function coreSet(path,value,src){
+  if(src==='claude'&&fault&&Math.random()<0.25)return; // dropped on the wire
+  const [a,b,c]=path; if(a==='ch')core.ch[b][c]=value; else core[a]=value;
+}
+function coreGet(path){const [a,b,c]=path;return a==='ch'?core.ch[b][c]:core[a];}
+
+/* Log */
+const logEl=$('#log');
+function log(src,msg){
+  const li=document.createElement('li');
+  const t=new Date().toLocaleTimeString([], {hour12:false});
+  li.innerHTML='<span class="t num"></span><span class="src '+src+'">'+src+'</span><span class="msg"></span>';
+  li.children[0].textContent=t; li.children[2].textContent=msg;
+  logEl.prepend(li);
+  while(logEl.children.length>60)logEl.lastChild.remove();
+}
+
+/* Render */
+const stripList=$('#stripList'); const refs={};
+for(const c of CH){
+  const row=document.createElement('div'); row.className='strip';
+  row.innerHTML='<div class="nm"></div><div class="fadercol"><div class="meter"><b></b></div><input type="range" min="-60" max="10" step="1"><span class="dbm num"></span></div><div class="db num"></div><button class="mute" type="button"></button>';
+  row.querySelector('.nm').innerHTML=c.name+'<small>'+c.sub+'</small>';
+  const range=row.querySelector('input'); range.id='f_'+c.id; range.setAttribute('aria-label',c.name+' level');
+  range.addEventListener('input',()=>{core.ch[c.id].level=+range.value;core.preset=null;render();});
+  range.addEventListener('change',()=>log('DIR',c.name+' fader '+fmt(core.ch[c.id].level)));
+  const mb=row.querySelector('.mute');
+  mb.addEventListener('click',()=>{core.ch[c.id].mute=!core.ch[c.id].mute;core.preset=null;log('DIR',c.name+(core.ch[c.id].mute?' muted':' live'));render();});
+  stripList.append(row);
+  refs[c.id]={row,range,mb,db:row.querySelector('.db'),dbm:row.querySelector('.dbm'),meter:row.querySelector('.meter b'),env:0};
+}
+const presetRow=$('#presetRow');
+for(const [k,p] of Object.entries(PRESETS)){
+  const b=document.createElement('button');b.type='button';b.className='sel';b.dataset.k=k;b.textContent=p.label;
+  b.addEventListener('click',()=>{applyPreset(k,'dir');});presetRow.append(b);
+}
+const camRow=$('#camRow');
+for(const [k,l] of Object.entries(CAMS)){
+  const b=document.createElement('button');b.type='button';b.className='sel cam';b.dataset.k=k;b.textContent=l;
+  b.addEventListener('click',()=>{core.cam=k;log('DIR','Camera → '+l);render();});camRow.append(b);
+}
+$('#streamStart').addEventListener('click',()=>{core.stream='live';pendingEnd=false;log('DIR','Stream live');render();});
+$('#streamEnd').addEventListener('click',()=>{core.stream='off';pendingEnd=false;log('DIR','Stream ended');render();});
+$('#confirmEnd').addEventListener('click',()=>{core.stream='off';pendingEnd=false;log('DIR','Confirmed: stream ended');render();});
+$('#confirmKeep').addEventListener('click',()=>{pendingEnd=false;log('DIR','Kept stream live');render();});
+$('#fault').addEventListener('change',e=>{fault=e.target.checked;log('DIR','Test mode '+(fault?'on: Core may drop Claude commands':'off'));render();});
+
+function fmt(v){return v<=-60?'−∞':(v>0?'+':'')+v+' dB';}
+function applyPreset(k,src){
+  const p=PRESETS[k];
+  for(const [id,[lv,mu]] of Object.entries(p.ch)){coreSet(['ch',id,'level'],lv,src);coreSet(['ch',id,'mute'],mu,src);}
+  coreSet(['cam'],p.cam,src);
+  if(src!=='claude'){core.preset=k;log('DIR','Scene → '+p.label);}
+  render();
+}
+function render(){
+  for(const c of CH){
+    const s=core.ch[c.id], r=refs[c.id];
+    r.range.value=s.level; r.db.textContent=fmt(s.level); r.dbm.textContent=fmt(s.level);
+    const off=s.mute; r.mb.textContent=off?'MUTE':'LIVE';
+    r.mb.className='mute '+(off?'muted':'live'); r.mb.setAttribute('aria-pressed',String(off));
+    r.row.classList.toggle('hushed',hush);
+  }
+  presetRow.querySelectorAll('.sel').forEach(b=>b.classList.toggle('active',b.dataset.k===core.preset));
+  camRow.querySelectorAll('.sel').forEach(b=>b.classList.toggle('active',b.dataset.k===core.cam));
+  $('#sceneNow').textContent=core.preset?PRESETS[core.preset].label:'Custom';
+  $('#streamNow').textContent=core.stream==='live'?'On air':'Off';
+  $('#tStream').className='tally'+(core.stream==='live'?' on-red':'');
+  $('#tStream span').textContent=core.stream==='live'?'On air':'Stream off';
+  $('#streamStart').classList.toggle('active',core.stream==='live');
+  $('#streamEnd').classList.toggle('active',core.stream==='off');
+  $('#confirmCard').hidden=!pendingEnd;
+  $('#tCore').className='tally '+(fault?'on-yellow':'on-ok');
+  const h=$('#hush'); h.classList.toggle('engaged',hush); h.setAttribute('aria-pressed',String(hush));
+  $('#hushSub').textContent=hush?'Engaged · hold to release':'Human only · tap to engage';
+}
+
+/* HUSH: tap to engage, hold 0.8 s to release. Claude has no tool for it. */
+const hb=$('#hush'), hold=$('#hushHold'); let holdT=null, holdStart=0, raf=null;
+function holdTick(){const p=Math.min(1,(performance.now()-holdStart)/800);hold.style.width=(p*100)+'%';if(p>=1){endHold(true);}else raf=requestAnimationFrame(holdTick);}
+function endHold(done){cancelAnimationFrame(raf);hold.style.width='0';holdT=null;if(done){hush=false;log('DIR','HUSH released');render();}}
+hb.addEventListener('pointerdown',e=>{
+  if(!hush){hush=true;log('DIR','HUSH engaged: all mics and remote audio cut');render();return;}
+  holdStart=performance.now();holdT=1;raf=requestAnimationFrame(holdTick);
+});
+['pointerup','pointerleave','pointercancel'].forEach(ev=>hb.addEventListener(ev,()=>{if(holdT)endHold(false);}));
+hb.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&hush&&!holdT&&!e.repeat){e.preventDefault();holdStart=performance.now();holdT=1;raf=requestAnimationFrame(holdTick);}else if((e.key==='Enter'||e.key===' ')&&!hush){e.preventDefault();hush=true;log('DIR','HUSH engaged: all mics and remote audio cut');render();}});
+hb.addEventListener('keyup',e=>{if(holdT)endHold(false);});
+
+/* Meters: simulated signal, silent when muted or hushed */
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+let last=0;
+function meters(t){
+  if(t-last>60){last=t;
+    for(const c of CH){const s=core.ch[c.id],r=refs[c.id];
+      const silent=s.mute||(hush&&c.id!=='play')||s.level<=-60;
+      let target=0;
+      if(!silent){const speech=c.id==='pres'?(0.55+0.4*Math.abs(Math.sin(t/430))*Math.random()):c.id==='remote'?(Math.random()<.6?0.5*Math.random()+0.25:0.05):c.id==='play'?0.6+0.2*Math.random():0.15*Math.random();
+        target=clamp(speech*(1+s.level/60),0,1);}
+      r.env=reduce?target:r.env*0.55+target*0.45; r.meter.style.width=(r.env*100).toFixed(1)+'%';}
+  }
+  requestAnimationFrame(meters);
+}
+requestAnimationFrame(meters);
+setInterval(()=>{$('#clock').textContent=new Date().toLocaleTimeString([], {hour12:false});},1000);
+
+/* Tools Claude may call. Every write is read back from the Core. */
+function guardHush(){if(hush)throw new Error('HUSH is engaged by the director. Audio is locked until a human releases it.');}
+function snapshot(){const o={};for(const c of CH)o[c.id]={level_db:core.ch[c.id].level,muted:core.ch[c.id].mute};return {channels:o,camera:core.cam,stream:core.stream,scene:core.preset||'custom',hush};}
+const chIds=CH.map(c=>c.id);
+const tools=[
+  {name:'read_room',description:'Returns the live read-back of every channel (level_db, muted), camera, stream, scene and whether HUSH is engaged.',execute(){return snapshot();}},
+  {name:'set_channel',description:'Change one channel. Give mute (true/false) and/or level_db (absolute, -60..10) or adjust_db (relative). Returns sent values, the Core read-back and verified true/false.',
+    inputSchema:{type:'object',properties:{channel:{type:'string',enum:chIds},mute:{type:'boolean'},level_db:{type:'number'},adjust_db:{type:'number'}},required:['channel']},
+    execute(i){guardHush();const id=String(i.channel);if(!core.ch[id])throw new Error('Unknown channel '+id);
+      const name=CH.find(c=>c.id===id).name;const want={};
+      if(i.level_db!==undefined)want.level=clamp(Math.round(Number(i.level_db)),-60,10);
+      else if(i.adjust_db!==undefined)want.level=clamp(core.ch[id].level+Math.round(Number(i.adjust_db)),-60,10);
+      if(i.mute!==undefined)want.mute=!!i.mute;
+      const parts=[];for(const k of Object.keys(want)){coreSet(['ch',id,k],want[k],'claude');parts.push(k==='level'?fmt(want[k]):(want[k]?'mute':'live'));}
+      core.preset=null;const rb={level_db:core.ch[id].level,muted:core.ch[id].mute};
+      const ok=Object.keys(want).every(k=>core.ch[id][k]===want[k]);
+      log('CLAUDE',name+' → '+parts.join(', '));log(ok?'CORE':'FAIL',ok?name+' read back ✓':name+' did not take ✗ (read back '+fmt(rb.level_db)+(rb.muted?', mute':', live')+')');
+      render();return {channel:id,sent:want,readback:rb,verified:ok};}},
+  {name:'recall_scene',description:'Recall a scene: walkin, presentation, qa (presenter live, audience mics armed but muted, camera on audience), brk (break). Returns read-back and verified.',
+    inputSchema:{type:'object',properties:{scene:{type:'string',enum:Object.keys(PRESETS)}},required:['scene']},
+    execute(i){guardHush();const k=String(i.scene);const p=PRESETS[k];if(!p)throw new Error('Unknown scene '+k);
+      applyPreset(k,'claude');
+      const ok=Object.entries(p.ch).every(([id,[lv,mu]])=>core.ch[id].level===lv&&core.ch[id].mute===mu)&&core.cam===p.cam;
+      if(ok)core.preset=k; else core.preset=null;
+      log('CLAUDE','Scene → '+p.label);log(ok?'CORE':'FAIL',ok?p.label+' read back ✓':p.label+' partly failed ✗');
+      render();return {scene:k,readback:snapshot(),verified:ok};}},
+  {name:'set_camera',description:'Move the PTZ camera to a preset: wide, presenter or audience. Returns read-back and verified.',
+    inputSchema:{type:'object',properties:{shot:{type:'string',enum:Object.keys(CAMS)}},required:['shot']},
+    execute(i){const k=String(i.shot);if(!CAMS[k])throw new Error('Unknown shot '+k);coreSet(['cam'],k,'claude');const ok=core.cam===k;
+      log('CLAUDE','Camera → '+CAMS[k]);log(ok?'CORE':'FAIL',ok?'Camera read back ✓':'Camera did not move ✗');render();return {shot:k,readback:core.cam,verified:ok};}},
+  {name:'request_stream',description:'Start the stream (applies at once) or request to end it. Ending only creates a confirmation for the human director; it does not end the stream.',
+    inputSchema:{type:'object',properties:{action:{type:'string',enum:['start','end']}},required:['action']},
+    execute(i){if(String(i.action)==='start'){coreSet(['stream'],'live','claude');const ok=core.stream==='live';log('CLAUDE','Stream → live');log(ok?'CORE':'FAIL',ok?'Stream read back ✓':'Stream did not start ✗');render();return {readback:core.stream,verified:ok};}
+      pendingEnd=true;log('CLAUDE','Requested end of stream: waiting for director');render();return {status:'awaiting_director_confirmation',stream:core.stream};}}
+];
+
+/* Offline parser: used only when Claude isn't available in this view */
+const WORDN={one:1,two:2,'1':1,'2':2};
+function offline(cue){
+  const q=cue.toLowerCase(); const did=[];
+  const run=(n,i)=>{try{const r=tools.find(t=>t.name===n).execute(i);did.push(r);}catch(e){did.push({error:e.message});}};
+  if(/hush|kill|cut everything|silence/.test(q))return 'HUSH is human-only. Use the red button.';
+  if(/walk.?in/.test(q))run('recall_scene',{scene:'walkin'});
+  else if(/break|intermission/.test(q))run('recall_scene',{scene:'brk'});
+  else if(/q ?& ?a|q and a|questions/.test(q))run('recall_scene',{scene:'qa'});
+  else if(/presentation|keynote/.test(q))run('recall_scene',{scene:'presentation'});
+  const m=q.match(/(?:audience|aud)\s*(?:mic\s*)?(one|two|1|2)|mic\s*(one|two|1|2)/);
+  if(m){const id='aud'+WORDN[m[1]||m[2]];run('set_channel',{channel:id,mute:!/close|mute|kill|off/.test(q)});}
+  const ch=/remote|meet/.test(q)?'remote':/presenter|speaker|lav/.test(q)?'pres':/playback|music|video/.test(q)?'play':null;
+  const d=q.match(/(up|down|raise|lower)\s*(\d+)\s*(?:db)?/);
+  if(ch&&d)run('set_channel',{channel:ch,adjust_db:(/(down|lower)/.test(d[1])?-1:1)*Number(d[2])});
+  else if(ch&&/\bmute\b/.test(q))run('set_channel',{channel:ch,mute:true});
+  else if(ch&&/unmute|open|live/.test(q))run('set_channel',{channel:ch,mute:false});
+  const cam=/camera|shot|cam/.test(q)&&(/wide/.test(q)?'wide':/audience|crowd/.test(q)?'audience':/presenter|speaker/.test(q)?'presenter':null);
+  if(cam)run('set_camera',{shot:cam});
+  if(/end (the )?stream|stop (the )?stream|we'?re done/.test(q))run('request_stream',{action:'end'});
+  else if(/go live|start (the )?stream/.test(q))run('request_stream',{action:'start'});
+  if(!did.length)return 'Offline parser did not understand. Try a scene name, "audience mic 2", or "remote up 3 dB".';
+  const err=did.find(r=>r.error);if(err)return err.error;
+  const bad=did.some(r=>r.verified===false);
+  return bad?'Something did not take on the Core. Check the log and resend.':'Done. Every command read back ✓.';
+}
+
+/* Claude via the viewer's account */
+let sample=null, ctl=null;
+const replyEl=$('#reply'), stopBtn=$('#stopBtn'), go=$('#goBtn');
+function setClaude(on,txt){$('#tClaude').className='tally'+(on?' on-blue':'');$('#tClaudeTxt').textContent=txt;}
+setClaude(false,'Claude…');
+(async()=>{
+  try{sample=window.claude?await window.claude.use('sample'):null;}catch(e){sample=null;}
+  if(sample){try{const lim=await sample.limits();if(!lim.tools)sample=null;}catch(e){}}
+  if(sample){setClaude(true,'Claude');$('#who').innerHTML='Cues go to <b>Claude</b>, which operates the room through five tools and confirms every change with a Core read-back.';}
+  else{setClaude(false,'Offline parser');$('#who').textContent='This installed version runs a simple offline parser. The live-Claude version runs inside Claude.';}
+})();
+
+function prompt(cue){
+  return 'You are the AV operator assisting a human director during a live hybrid corporate presentation in Hall A (200 seats, remote participants on Google Meet). The director just called a cue.\n'
+  +'Carry it out with the tools, then reply in ONE short line (max 20 words) stating what is now true according to the read-backs.\n'
+  +'Rules: every write tool returns verified true/false from the Core read-back. If verified is false, say plainly what did not take; never claim success without a verified read-back. '
+  +'You cannot control HUSH; if asked to cut everything, tell the director HUSH is theirs. Ending the stream only requests confirmation from the director; say it is waiting. '
+  +'If the cue is ambiguous or risky, change nothing and ask one short question. Levels in dB, faders -60 to +10, 0 is unity. "Mic two" in Q&A means aud2.\n'
+  +'Channels: pres (Presenter lav), aud1 and aud2 (audience handhelds), remote (Meet return, remote voices in the room), play (video playback).\n'
+  +'Current read-back: '+JSON.stringify(snapshot())+'\n\nCue: "'+cue.replace(/"/g,"'")+'"';
+}
+const ERR={not_granted:'Claude was not allowed for this page. Using the offline parser.',rate_limited:'Too many cues at once. Wait a moment and send again.',session_expired:'Sign in to Claude again, then resend.',refused:'Claude declined that cue. Rephrase it.',upstream_error:'Connection hiccup. Send the cue again.'};
+async function sendCue(cue){
+  cue=cue.trim(); if(!cue)return;
+  log('DIR','Cue: '+cue);
+  if(!sample){replyEl.textContent=offline(cue);return;}
+  ctl=new AbortController(); go.disabled=true; stopBtn.hidden=false; replyEl.textContent='Thinking…';
+  try{
+    const {text}=await sample(prompt(cue),{tools,modelTier:'quick',signal:ctl.signal,onText:({text})=>{replyEl.textContent=text.split('\n').filter(Boolean).pop()||text;}});
+    replyEl.textContent=text.split('\n').filter(Boolean).pop()||text;
+  }catch(e){
+    if(e&&e.code==='cancelled'){replyEl.textContent='Stopped. Anything already sent stays done; check the log.';}
+    else if(e&&['not_granted','sampling_disabled','tools_unavailable','capability_disabled','not_declared'].includes(e.code)){sample=null;setClaude(false,'Offline parser');replyEl.textContent=(ERR[e.code]||'Claude is unavailable here.')+' '+offline(cue);}
+    else replyEl.textContent=ERR[e&&e.code]||ERR.upstream_error;
+  }finally{go.disabled=false;stopBtn.hidden=true;ctl=null;}
+}
+stopBtn.addEventListener('click',()=>ctl&&ctl.abort());
+$('#cueForm').addEventListener('submit',e=>{e.preventDefault();const v=$('#cueInput').value;$('#cueInput').value='';sendCue(v);});
+const CHIPS=['Presentation','Q&A, open audience mic two','Remote voices up 3 dB','Camera on the audience','Close the audience mics','Break','Kill everything','We’re done, end the stream'];
+const chips=$('#chips');
+for(const c of CHIPS){const b=document.createElement('button');b.type='button';b.className='chip';b.textContent=c;b.addEventListener('click',()=>sendCue(c));chips.append(b);}
+
+render();
+log('CORE','Design running · Presentation scene loaded');
+log('DIR','Doors open. Stream on air.');
+})();
+if('serviceWorker' in navigator){addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));}
+</script>
+</body></html>

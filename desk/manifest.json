@@ -1,0 +1,1 @@
+{"name": "Director's Desk", "short_name": "Desk", "start_url": "./", "scope": "./", "display": "standalone", "orientation": "any", "background_color": "#13151b", "theme_color": "#13151b", "description": "Tablet desk for a 200-seat hybrid room. Concept by Ovi, built with Claude.", "icons": [{"src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any"}]}
