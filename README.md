@@ -11,6 +11,7 @@ A job application built as a vinyl record player. Three sides, narrated, in one 
 
 - **Run of Show** — résumé cued like a live production → https://ovidemetrian.github.io/my-future-past/anthropic/
 - **Director's Desk** — the director calls the cue, Claude operates, HUSH stays human → https://ovidemetrian.github.io/my-future-past/desk/ ([README](desk/README.md))
+- **ShowGate** — the room connector between Claude and Q-SYS: a human holds the AI switch, HUSH is locked twice, nothing counts without a read-back from the Core. Proof run: 16 passed → [showgate/](showgate/) ([proof transcript](showgate/proof-run.txt))
 
 **🔊 Live audio (playable):**
 
