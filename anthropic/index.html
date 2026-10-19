@@ -129,7 +129,9 @@ h1 .r{color:var(--pgm)}
 .sign{font:700 22px/1 var(--cond);letter-spacing:.03em}
 .card{background:var(--desk);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:grid}
 .card.live{border-color:var(--pgm)}
-.card img{width:100%;max-width:100%;display:block;aspect-ratio:16/9;object-fit:cover}
+.card img{display:block;width:calc(100% - 20px);max-width:calc(100% - 20px);height:auto;margin:10px auto 0;border-radius:10px;object-fit:contain;background:#05070c}
+#broll,.card{grid-template-columns:minmax(0,1fr)}
+@media (min-width:700px){.card img{max-height:560px}}
 .card .in{padding:14px 16px;display:grid;gap:8px}
 .card h3{margin:0;font:700 22px/1.1 var(--cond);letter-spacing:.02em;text-transform:uppercase}
 .card p{margin:0;max-width:62ch;color:#d9dee8}
@@ -332,7 +334,7 @@ footer p{margin:0;font:500 12px/1.6 var(--mono);color:var(--mute);letter-spacing
 </button>
 <div id="wcTip" role="status" aria-live="polite">Drag me to throw · hold still for SYNTHIOSIS</div>
 
-<script src="content.js"></script>
+<script src="content.js?v=8"></script>
 <script>
 (function(){
 "use strict";
