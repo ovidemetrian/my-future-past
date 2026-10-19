@@ -1,6 +1,6 @@
 /* Run of Show content: the words on the page. Edit here; index.html builds the page from it. */
 /* Card pictures are square: show them whole instead of cropping to 16:9. */
-(function(){var s=document.createElement('style');s.textContent='#broll,.card{grid-template-columns:minmax(0,1fr)}.card img{aspect-ratio:auto;height:auto;min-width:0;object-fit:contain;background:#05070c}@media (min-width:700px){.card img{max-height:560px}}';document.head.appendChild(s);})();
+(function(){var s=document.createElement('style');s.textContent='#broll,.card{grid-template-columns:minmax(0,1fr)}.card img{aspect-ratio:auto;height:auto;min-width:0;width:calc(100% - 20px);max-width:calc(100% - 20px);margin:10px auto 0;border-radius:10px;object-fit:contain;background:#05070c}@media (min-width:700px){.card img{max-height:560px}}';document.head.appendChild(s);})();
 window.ROS_CONTENT=(function(){
 "use strict";
 var CUES=[
