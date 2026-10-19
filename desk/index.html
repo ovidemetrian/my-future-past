@@ -681,6 +681,96 @@ body[data-screen="lights"] #app .tile.pgm{grid-column:1/-1;grid-row:auto}
   .sub input[type=range]{height:16px}
   .subs{gap:2px}
 }
+
+/* ===== v24 The bubble: AI OFF · WATCH · ON, ARE YOU SURE?, WATCH flashes ===== */
+.aidock{width:52px;height:52px;flex:none;align-self:center}
+.tallies{align-items:center}
+#wcBadge.ai-off svg{filter:grayscale(1) brightness(.5)}
+#wcBadge.ai-off .rim,#wcBadge.ai-off .flow{animation-play-state:paused}
+#wcBadge.ai-watch svg{animation:aiBreath 3.2s ease-in-out infinite}
+@keyframes aiBreath{50%{opacity:.5}}
+#wcBadge.ai-on{filter:drop-shadow(0 0 9px rgba(74,144,255,.6)) drop-shadow(0 8px 14px rgba(0,0,0,.5))}
+#wcBadge.working{filter:drop-shadow(0 0 16px #4a90ff) drop-shadow(0 0 5px #4a90ff)}
+#wcBadge.okp{filter:drop-shadow(0 0 18px #3fd99a)}
+#wcBadge.badp{filter:drop-shadow(0 0 18px #ff4040)}
+#wcBadge.flag{animation:aiFlag .55s ease-in-out 4}
+@keyframes aiFlag{50%{filter:drop-shadow(0 0 22px #ffcc3d) drop-shadow(0 0 8px #ffcc3d)}}
+@media (prefers-reduced-motion:reduce){#wcBadge.ai-watch svg,#wcBadge.flag{animation:none}}
+/* ARE YOU SURE? key */
+#app .ays{position:relative;min-width:132px;padding:10px 14px;border-radius:4px;border:2px solid var(--yellow);background:#1f1a08;color:var(--yellow);
+  font-family:var(--display);font-weight:700;font-size:19px;letter-spacing:.08em;cursor:pointer;line-height:1.05;
+  box-shadow:inset 0 -3px 6px rgba(0,0,0,.5),0 3px 0 #050608;text-shadow:0 -1px 0 rgba(0,0,0,.9)}
+#app .ays small{display:block;font-family:var(--body);font-weight:500;font-size:11px;letter-spacing:.01em;color:var(--fg);opacity:.75;margin-top:3px}
+#app .ays:active{transform:translateY(3px);background:var(--yellow);color:#1f1600}
+/* AI switch: three positions */
+.aimode{display:grid;grid-template-columns:auto repeat(3,minmax(0,1fr));gap:6px;align-items:stretch}
+.aimode.big{grid-template-columns:repeat(3,minmax(0,1fr))}
+.aimode .lbl{align-self:center;padding-right:2px}
+.aiseg{--lamp:#9298a6;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:48px;padding:5px 4px;border-radius:4px;border:2px solid #050608;
+  background:#14161d;color:color-mix(in srgb,var(--lamp) 85%,#fff);font-family:var(--display);font-weight:700;font-size:18px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;line-height:1;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.06),inset 0 -3px 6px rgba(0,0,0,.55),0 3px 0 #050608}
+.aiseg small{font-family:var(--body);font-weight:500;font-size:10.5px;letter-spacing:0;text-transform:none;opacity:.8}
+.aiseg[data-ai="off"]{--lamp:#ece9e1}.aiseg[data-ai="watch"]{--lamp:#ffcc3d}.aiseg[data-ai="on"]{--lamp:#4a90ff}
+.aiseg.on{background-color:var(--lamp);color:#0b0d12;box-shadow:inset 0 0 0 1px rgba(255,255,255,.35),0 3px 0 #050608,0 0 14px 1px color-mix(in srgb,var(--lamp) 60%,transparent);transform:translateY(2px)}
+.aiseg.on small{opacity:.85}
+/* WATCH flash */
+.watchflash{position:fixed;z-index:35;left:50%;transform:translateX(-50%);bottom:calc(76px + env(safe-area-inset-bottom,0px));width:min(92vw,460px);
+  display:grid;gap:8px;padding:14px 16px;border-radius:10px;background:#1f1a08;border:2px solid var(--yellow);color:var(--fg);box-shadow:0 14px 34px rgba(0,0,0,.6)}
+.watchflash b{font-family:var(--display);font-size:20px;letter-spacing:.08em;text-transform:uppercase;color:var(--yellow)}
+.watchflash .wrow{display:flex;gap:8px;flex-wrap:wrap}
+.wbtn{min-height:42px;padding:6px 16px;border-radius:4px;border:2px solid #050608;background:var(--yellow);color:#1f1600;font-family:var(--display);font-weight:700;font-size:17px;letter-spacing:.06em;text-transform:uppercase;cursor:pointer}
+.wbtn.ghost{background:transparent;color:var(--fg);border-color:var(--line)}
+/* Cards: ARE YOU SURE? and the AI card */
+.card2{position:fixed;z-index:40;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));width:min(94vw,540px);max-height:min(82vh,720px);overflow:auto;
+  border-radius:12px;background:var(--panel);border:2px solid var(--blue);box-shadow:0 20px 50px rgba(0,0,0,.7)}
+.card2.ays{border-color:var(--yellow)}
+.card2-in{padding:16px 18px 18px;display:grid;gap:8px}
+.card2 header{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.card2 h3{margin:0;font-family:var(--display);font-weight:700;font-size:28px;letter-spacing:.05em;text-transform:uppercase}
+.card2.ays h3{color:var(--yellow)}
+.card2.ai h3{color:var(--blue)}
+.card2 h4{margin:8px 0 0;font-family:var(--display);font-weight:600;font-size:15px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.card2 ul{margin:0;padding-left:18px;display:grid;gap:3px}
+.card2 li.calm{list-style:none;margin-left:-18px;color:var(--ok)}
+.card2 p{margin:0}
+.card2 .ailine{color:var(--dim);font-size:14px}
+.x2{width:40px;height:40px;border-radius:6px;border:1px solid var(--line);background:transparent;color:var(--fg);font-size:18px;cursor:pointer}
+.lastai{font-size:14px}
+.lastai .ok{color:var(--ok)}.lastai .bad{color:var(--red)}
+.crow{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:8px;margin-top:8px}
+.cgo,.cno{min-height:52px;border-radius:4px;border:2px solid #050608;font-family:var(--display);font-weight:700;font-size:20px;letter-spacing:.06em;text-transform:uppercase;cursor:pointer}
+.cgo{background:var(--ok);color:#03210f;box-shadow:0 3px 0 #050608,0 0 14px rgba(63,217,154,.4)}
+.cno{background:#14161d;color:var(--fg)}
+.humor{display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--dim);margin-top:6px}
+.humor input{width:18px;height:18px;accent-color:var(--yellow);flex:none}
+.credit2{font-size:12px;color:var(--dim);margin-top:4px}
+.src.WATCH{color:var(--yellow)}
+@media (min-width:1100px) and (min-height:620px){
+  #app .ays{min-width:118px;padding:6px 10px;font-size:16px}
+  #app .ays small{font-size:10px}
+  .aimode{gap:5px}
+  .aiseg{min-height:40px;font-size:15px}
+  .aiseg small{font-size:9.5px}
+}
+@media (min-width:1100px) and (min-height:620px){
+  #app .bar{flex-wrap:nowrap}
+  #app .brand{min-width:0;flex:1 1 auto}
+  #app .brand p{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #app .tallies{flex-wrap:nowrap}
+  #app .tally{white-space:nowrap}
+}
+@media (min-width:1100px) and (max-width:1320px) and (min-height:620px){
+  #tCore{display:none}
+  #app .clock{font-size:16px}
+  #app .brand h1{font-size:22px}
+  #app .ays{min-width:0}
+  #app .hush{min-width:0}
+}
+@media (min-width:1100px) and (min-height:620px) and (max-height:860px){
+  .aiseg small{display:none}
+  .aiseg{min-height:34px}
+  #app .ays small{display:none}
+}
 </style>
 
 <div class="wrap" id="app">
@@ -690,12 +780,14 @@ body[data-screen="lights"] #app .tile.pgm{grid-column:1/-1;grid-row:auto}
       <p><span id="showLabel">Hall A · 200 seats · hybrid on Google Meet</span> · <b>simulated</b> Q-SYS Core</p>
     </div>
     <div class="tallies">
+      <span class="aidock" id="aiDock" aria-hidden="true"></span>
       <span class="tally" id="tStream"><i></i><span>Stream</span></span>
       <span class="tally" id="tLx"><i></i><span id="tLxTxt">Lights</span></span>
       <span class="tally on-ok" id="tCore"><i></i>Core</span>
       <span class="tally" id="tClaude"><i></i><span id="tClaudeTxt">Claude</span></span>
       <span class="tally"><span class="clock num" id="clock">--:--:--</span></span>
     </div>
+    <button class="ays" id="aysBtn" type="button">ARE YOU SURE?<small>check the next step</small></button>
     <button class="hush" id="hush" type="button" aria-pressed="false">HUSH<small id="hushSub">Human only · tap to engage</small><span class="hold" id="hushHold"></span></button>
   </header>
 
@@ -815,6 +907,12 @@ body[data-screen="lights"] #app .tile.pgm{grid-column:1/-1;grid-row:auto}
       </div>
 
       <header style="margin-top:6px"><h2>Cue Claude</h2><span class="lbl">you direct · Claude operates</span></header>
+      <div class="aimode" role="radiogroup" aria-label="AI on this desk">
+        <span class="lbl">AI</span>
+        <button type="button" class="aiseg" data-ai="off" role="radio" aria-checked="false">Off<small>me alone</small></button>
+        <button type="button" class="aiseg" data-ai="watch" role="radio" aria-checked="false">Watch<small>looks, never acts</small></button>
+        <button type="button" class="aiseg" data-ai="on" role="radio" aria-checked="true">On<small>works with you</small></button>
+      </div>
       <div class="who" id="who">Type a cue the way you'd call it on headset. Dictate with your keyboard's mic for hands-free.</div>
       <form class="cueform" id="cueForm">
         <input id="cueInput" autocomplete="off" placeholder="e.g. Q&A, open audience mic two" aria-label="Cue">
@@ -830,16 +928,15 @@ body[data-screen="lights"] #app .tile.pgm{grid-column:1/-1;grid-row:auto}
   </main>
 
   <footer class="foot">
-    <span class="keys" aria-label="Keyboard shortcuts"><b>Keys</b> 1–5 mute · Q W E R scenes · S G H C calls · L lights GO · / cue Claude · Esc close</span>
+    <span class="keys" aria-label="Keyboard shortcuts"><b>Keys</b> 1–5 mute · Q W E R scenes · S G H C calls · L lights GO · A are you sure? · / cue Claude · Esc close</span>
     <label class="toggle"><input type="checkbox" id="fault"> Test mode: Core drops 1 in 4 Claude commands (this device)</label>
     <span class="credit"><b>Concept by Ovi</b> · built with Claude · simulation, no real equipment</span>
   </footer>
 </div>
 <div class="toast" id="toast" hidden role="status" aria-live="assertive"><small id="toastWho"></small><span id="toastTxt"></span></div>
+<div class="card2" id="aiCard" hidden role="dialog" aria-labelledby="aiCardTitle"><div class="card2-in"><header><h3 id="aiCardTitle">Card</h3><button class="x2" type="button" id="aiCardClose" aria-label="Close">✕</button></header><div class="card2-body" id="aiCardBody"></div></div></div>
+<div class="watchflash" id="watchFlash" hidden role="status" aria-live="polite"><b>Are you sure?</b><span id="watchTxt"></span><div class="wrow"><button type="button" class="wbtn" id="watchUndo">Undo</button><button type="button" class="wbtn ghost" id="watchOk">Keep it</button></div></div>
 
 <script src="desk.js"></script>
 <script src="badge.js"></script>
-
-
-
 </body></html>
