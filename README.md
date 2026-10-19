@@ -7,6 +7,11 @@ A job application built as a vinyl record player. Three sides, narrated, in one 
 
 **🔗 Live:** https://ovidemetrian.github.io/my-future-past/
 
+**🎬 For Anthropic's AV Production Specialist role:**
+
+- **Run of Show** — résumé cued like a live production → https://ovidemetrian.github.io/my-future-past/anthropic/
+- **Director's Desk** — the director calls the cue, Claude operates, HUSH stays human → https://ovidemetrian.github.io/my-future-past/desk/ ([README](desk/README.md))
+
 **🔊 Live audio (playable):**
 
 - [Play “Never_Let_AI_Finish_Your_Thoughts _.mp3”](https://raw.githubusercontent.com/ovidemetrian/my-future-past/main/Never_Let_AI_Finish_Your_Thoughts%20_.mp3)
@@ -23,7 +28,7 @@ A job application built as a vinyl record player. Three sides, narrated, in one 
 | Side | Contents |
 |------|----------|
 | **Résumé** | Contact · Business history from 1994 · Product development · Core technical skills |
-| **Cover Letter** | Written for Product Manager role at Suno |
+| **Cover Letter** | From an earlier product application; the Anthropic version is in [Run of Show](https://ovidemetrian.github.io/my-future-past/anthropic/) |
 | **Extra Stuff** | Portfolio — GGI framework, Ten Laws of AI, submissions and outreach |
 
 Press play and the page reads itself aloud, highlighting each word as it's spoken. Transport controls work like a record player.
@@ -82,7 +87,8 @@ The repository name becomes part of the URL and is case-sensitive.
 ## Also See
 
 - **Möbius Bar Desk** (News verification with three checking agents) → https://ovidemetrian.github.io/mobiusbar/
-- **GGI Control Panel** (AGI governance framework) → https://ovidemetrian.github.io/GGI-GENIAL-GENUINE-INTELIGENCE/
+- **GGI Control Panel** (AI governance framework, since December 2025) → https://ovidemetrian.github.io/GGI-GENIAL-GENUINE-INTELLIGENCE/
+- **SONOS Panel** (room-first whole-home audio controller concept) → https://ovidemetrian.github.io/SONOS-panel/
 - **NoEscape Navigator** (Dark pattern museum) → https://ovidemetrian.github.io/Netscape/
 - **Ten Laws of AI** → https://10lawsofai.com
 
