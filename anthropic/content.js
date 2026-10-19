@@ -1,4 +1,6 @@
 /* Run of Show content: the words on the page. Edit here; index.html builds the page from it. */
+/* Card pictures are square: show them whole instead of cropping to 16:9. */
+(function(){var s=document.createElement('style');s.textContent='.card img{aspect-ratio:1/1;object-fit:contain;max-height:560px;background:#05070c}';document.head.appendChild(s);})();
 window.ROS_CONTENT=(function(){
 "use strict";
 var CUES=[
