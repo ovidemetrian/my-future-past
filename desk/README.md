@@ -12,6 +12,8 @@ A broadcast desk for live and hybrid shows, built so the director is not glued t
 - **HUSH is human only.** One tap cuts every mic. Releasing it takes a deliberate hold. Claude cannot touch it.
 - **Roles.** Director, A1 Audio, Camera, Stream, Lighting, Floor. Each person owns their part; the director owns everything.
 - **Crew on the same show.** Call sheet, check-in, cue lights (Standby, Go, Hold, Clear) and a shared show log.
+- **The bubble is the AI switch.** Tap the MADE BY OVI WITH CLAUDE bubble: **OFF** (me alone, the AI is truly cut off), **WATCH** (it looks and flags what seems wrong, never acts) or **ON** (works with you, every move shown and read back). Anyone can step the AI down; only the Director brings it back up.
+- **ARE YOU SURE?** One key shows what your next step will change and what looks wrong right now, before you GO. It works with the AI off. In WATCH, the AI asks the same question once, with a smile and an Undo, and never on HUSH or Blackout.
 - **Lights on cue with sound and cameras.** One scene GO moves audio, camera and the light cue together, with real fade times. The LD has a cue stack and house, wash, key and cyc submasters, and the camera previews show what the lights are doing. **Blackout is human only**, like HUSH.
 - **Camera previews** with program on air, and **PFL** headphone listening per channel.
 - **Tablet, desktop console, or several portrait monitors** with one mouse across all of them, each window showing one part: Audio, Picture, Lighting, or Calls & Claude.
