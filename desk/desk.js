@@ -44,7 +44,7 @@ const chName=id=>(CH.find(c=>c.id===id)||{}).name||id;
 /* ---------- Show state: one shared document when the crew is connected ---------- */
 function freshState(){const ch={};for(const c of CH){const p=PRESETS.presentation.ch[c.id];ch[c.id]={level:p[0],mute:p[1]};}
   const lv=Object.assign({},LX.presentation.lv);
-  return {ch,cam:'presenter',stream:'live',preset:'presentation',hush:false,pendingEnd:false,cue:null,change:null,lx:{look:'presentation',from:lv,to:Object.assign({},lv),at:0,fade:0},blackout:false};}
+  return {ch,cam:'presenter',stream:'live',preset:'presentation',hush:false,pendingEnd:false,cue:null,change:null,lx:{look:'presentation',from:lv,to:Object.assign({},lv),at:0,fade:0},blackout:false,ai:'on'};}
 let S=freshState();
 let db=null, user=null, room=null, docRef=null, myId=null, canWrite=true, docExists=false;
 let fault=false, myRole='Director';
@@ -60,8 +60,10 @@ let wq=Promise.resolve();
 function merge(t,p){for(const k of Object.keys(p)){const v=p[k];if(v&&typeof v==='object'&&!Array.isArray(v)&&t[k]&&typeof t[k]==='object')merge(t[k],v);else t[k]=v;}}
 function write(patch,src,what){
   if(!canWrite){toast('Read only','Ask the owner for edit access to operate the desk.');return Promise.resolve(false);}
+  const prevW=(src==='DIR'&&!watchMute&&(S.ai||'on')==='watch')?JSON.parse(JSON.stringify(S)):null;
   const change={src,what,by:myId,role:myRole,at:Date.now()};
   merge(S,patch); S.change=change; render();
+  if(prevW){try{watchCheck(prevW,patch);}catch(_){}}
   if(!docRef){addLog(src,what,myRole);bcSend({t:'patch',show:SHOW,patch,change});return Promise.resolve(true);}
   const full=Object.assign({},patch,{change});
   wq=wq.then(async()=>{
@@ -229,6 +231,143 @@ function lxShade(g,k,W,H){
   g.restore();
 }
 
+/* ---------- The bubble: AI OFF · WATCH · ON, the clue, and ARE YOU SURE? ---------- */
+const AI_LABEL={off:'OFF · me alone',watch:'WATCH · looks, never acts',on:'ON · works with you'};
+const AI_RANK={off:0,watch:1,on:2};
+let humor=true; try{humor=localStorage.getItem('desk.humor')!=='0';}catch(_){}
+let lastAI=null, watchMute=false, claudeAvail={on:false,txt:'Claude…'};
+function aiMode(){return S.ai||'on';}
+function setAi(m){const cur=aiMode(); if(m===cur)return;
+  if(AI_RANK[m]>AI_RANK[cur]&&myRole!=='Director'){toast(myRole,'Anyone can take the AI down. Only the Director brings it back up.');return;}
+  if(m!=='on'&&ctl){try{ctl.abort();}catch(_){}}
+  write({ai:m},'DIR','AI → '+AI_LABEL[m]);}
+document.querySelectorAll('.aiseg').forEach(b=>b.addEventListener('click',()=>setAi(b.dataset.ai)));
+function guardAI(){const m=aiMode(); if(m!=='on')throw new Error('The crew switched the AI to '+m.toUpperCase()+'. Claude cannot act. Only a human can switch it back ON.');}
+function renderAi(){const m=aiMode();
+  document.querySelectorAll('.aiseg').forEach(b=>{const on=b.dataset.ai===m;b.classList.toggle('on',on);b.setAttribute('aria-checked',String(on));});
+  $('#tClaude').className='tally'+(m==='on'?(claudeAvail.on?' on-blue':''):m==='watch'?' on-yellow':'');
+  $('#tClaudeTxt').textContent=m==='on'?claudeAvail.txt:m==='watch'?'AI watching':'AI off';
+  const wb=document.getElementById('wcBadge');
+  if(wb){wb.classList.toggle('ai-off',m==='off');wb.classList.toggle('ai-watch',m==='watch');wb.classList.toggle('ai-on',m==='on');
+    wb.setAttribute('aria-label','AI is '+m.toUpperCase()+'. Tap for the switch and what the AI did. Hold for SYNTHIOSIS.');}
+  $('#cueInput').placeholder=m==='on'?'e.g. Q&A, open audience mic two':m==='watch'?'AI is watching only · switch it ON to cue Claude':'AI is OFF · the desk is all yours';
+  if(cardKind==='ai'&&!$('#aiCard').hidden)openAiCard();}
+addEventListener('load',renderAi);
+function badge(fn){try{window.wcBadgeAPI&&fn(window.wcBadgeAPI);}catch(_){}}
+function aiTouch(patch){let el=null;
+  if(patch.ch){const id=Object.keys(patch.ch)[0];el=refs[id]&&refs[id].row;}
+  else if(patch.cam)el=camRow.querySelector('.tile[data-k="'+patch.cam+'"]');
+  else if(patch.lx)el=$('#lights');
+  else if(patch.stream)el=$('#streamStart');
+  if(el)badge(a=>{a.flyTo(el.getBoundingClientRect());a.cls('working',1500);});}
+
+/* WATCH: plain desk logic. It flags, it never blocks, it never questions HUSH or Blackout. */
+const ruleAt={};
+const sceneOf=st=>st.preset||(st.lx&&st.lx.look)||null;
+const chTo=(patch,id,key,val)=>!!(patch.ch&&patch.ch[id]&&patch.ch[id][key]===val);
+const houseTo=st=>+((st.lx&&st.lx.to&&st.lx.to.house)||0);
+function watchRules(prev,patch){
+  const out=[], ctx=sceneOf(prev), ctxL=ctx&&PRESETS[ctx]?PRESETS[ctx].label.toLowerCase():'';
+  const talking=ctx==='presentation'||ctx==='qa', h=houseTo(S);
+  for(const [id,n] of [['aud1',1],['aud2',2]]) if(chTo(patch,id,'mute',false)&&(ctx==='brk'||ctx==='walkin'))
+    out.push({id:'aud-'+id,funny:'Mic '+n+' is live during the '+ctxL+'. The hallway is about to hear the coffee gossip.',dry:'Mic '+n+' is live during the '+ctxL+'.',undo:()=>({ch:{[id]:{mute:true}}}),undoTxt:'Mute mic '+n});
+  if(patch.stream==='off'&&prev.stream==='live'&&!S.ch.pres.mute&&!S.hush)
+    out.push({id:'stream-talk',funny:'The presenter is still talking and the stream just went dark. Somebody out there is listening to silence.',dry:'Stream ended while the presenter mic is live.',undo:()=>({stream:'live',pendingEnd:false}),undoTxt:'Back on air'});
+  if(S.stream==='live'&&S.ch.pres.mute&&!S.hush&&talking&&(chTo(patch,'pres','mute',true)||(patch.stream==='live'&&prev.stream!=='live')))
+    out.push({id:'star-muted',funny:'You’re on air and the star is muted. Bold choice.',dry:'On air with the presenter muted.',undo:()=>({ch:{pres:{mute:false}}}),undoTxt:'Unmute presenter'});
+  if(patch.cam==='audience'&&!S.blackout&&h<30)
+    out.push({id:'cam-dark',funny:'Audience camera on program, house lights at '+h+'%. We’re broadcasting silhouettes.',dry:'Audience camera with the house at '+h+'%.',undo:()=>({cam:prev.cam}),undoTxt:'Back to '+CAMS[prev.cam]});
+  if(patch.lx&&patch.lx.look===null&&S.cam==='audience'&&!S.blackout&&h<30&&houseTo(prev)>=30)
+    out.push({id:'house-dark',funny:'House lights down while the audience camera is on program. Lovely shot of nothing.',dry:'House down with the audience camera on program.',undo:()=>lxSubPatch('house',houseTo(prev)),undoTxt:'House back to '+houseTo(prev)+'%'});
+  if(chTo(patch,'play','mute',false)&&!S.ch.pres.mute&&talking)
+    out.push({id:'music-under',funny:'Music is now playing under the presenter. Unless this is a musical?',dry:'Playback is live under the presenter.',undo:()=>({ch:{play:{mute:true}}}),undoTxt:'Mute playback'});
+  if(patch.lx&&patch.lx.look==='brk'&&patch.preset!=='brk'&&!S.ch.pres.mute&&!S.hush&&prev.lx&&prev.lx.look&&LX[prev.lx.look])
+    out.push({id:'break-lights',funny:'Lights say break, the presenter mic says keep talking.',dry:'Break lights while the presenter mic is live.',undo:()=>Object.assign(lxPatch(prev.lx.look),{preset:null}),undoTxt:'Back to '+LX[prev.lx.look].label+' lights'});
+  return out;}
+let watchT=null, watchCur=null;
+function watchCheck(prev,patch){
+  if('hush' in patch||'blackout' in patch||'ai' in patch)return;
+  const now=Date.now(); const r=watchRules(prev,patch).find(x=>!ruleAt[x.id]||now-ruleAt[x.id]>20000); if(!r)return;
+  ruleAt[r.id]=now; watchCur=r;
+  const onAirTalk=S.stream==='live'&&['presentation','qa'].includes(sceneOf(S));
+  const txt=(!humor||onAirTalk)?r.dry:r.funny;
+  $('#watchTxt').textContent=txt; $('#watchUndo').textContent=r.undoTxt; $('#watchFlash').hidden=false;
+  addLog('WATCH',txt,'','Claude watching');
+  badge(a=>a.cls('flag',2200));
+  clearTimeout(watchT); watchT=setTimeout(()=>{$('#watchFlash').hidden=true;watchCur=null;},9000);}
+$('#watchUndo').addEventListener('click',()=>{const r=watchCur; $('#watchFlash').hidden=true; watchCur=null; if(!r)return;
+  watchMute=true; try{write(r.undo(),'DIR','Undo: '+r.undoTxt);}finally{watchMute=false;}});
+$('#watchOk').addEventListener('click',()=>{$('#watchFlash').hidden=true;watchCur=null;});
+
+/* ARE YOU SURE?: before the next step, say what it will do and what looks wrong. Plain logic, works with the AI off. */
+const ORDER=['walkin','presentation','qa','brk'];
+function nextScene(){const i=ORDER.indexOf(sceneOf(S));return ORDER[(i+1)%ORDER.length];}
+function sceneDiff(k){const p=PRESETS[k], out=[];
+  for(const c of CH){const [lv,mu]=p.ch[c.id], s=S.ch[c.id];
+    if(s.mute!==mu||(!mu&&s.level!==lv))out.push(c.name+': '+(mu?(lv>-60?'armed, muted':'muted'):'live at '+fmt(lv))+'  (now '+(s.mute?'muted':'live '+fmt(s.level))+')');}
+  if(S.cam!==p.cam)out.push('Camera: '+CAMS[p.cam]+'  (now '+CAMS[S.cam]+')');
+  const L=LX[k], to=(S.lx&&S.lx.to)||{};
+  const ch=SUBS.filter(x=>+to[x.id]!==L.lv[x.id]).map(x=>x.name.toLowerCase()+' '+L.lv[x.id]+'%');
+  if(ch.length||(S.lx&&S.lx.look)!==k)out.push('Lights: LX '+L.n+' '+L.label+', '+L.fade+' s fade'+(ch.length?' · '+ch.join(', '):''));
+  return out;}
+function stateIssues(){const w=[], sc=sceneOf(S), h=houseTo(S);
+  if(S.stream==='live'&&S.ch.pres.mute&&(sc==='presentation'||sc==='qa'))w.push('On air with the presenter muted.');
+  if(S.cam==='audience'&&h<30&&!S.blackout)w.push('Audience camera on program with the house at '+h+'%.');
+  if((sc==='brk'||sc==='walkin')&&(!S.ch.aud1.mute||!S.ch.aud2.mute))w.push('An audience mic is live during the '+PRESETS[sc].label.toLowerCase()+'.');
+  if(!S.ch.play.mute&&!S.ch.pres.mute&&sc==='presentation')w.push('Playback is live under the presenter.');
+  if(S.pendingEnd)w.push('Claude asked to end the stream. It is waiting for a human.');
+  if(fault)w.push('Test mode is on: the Core drops 1 in 4 Claude commands on this device.');
+  return w;}
+function preflight(k){const w=[];
+  if(S.hush)w.push('HUSH is on. The audio part of this cue waits until a human releases it.');
+  if(S.blackout)w.push('Blackout is on. The light cue waits until a human releases it.');
+  if(k==='brk'&&S.stream==='live')w.push('The stream stays on air through the break. Remote viewers get the break music and the wide shot.');
+  if(k==='qa')w.push('Audience mics arm muted. Floor hands the mic, then A1 opens it.');
+  return w;}
+let cardKind=null;
+function el(tag,cls,txt){const e=document.createElement(tag);if(cls)e.className=cls;if(txt!==undefined)e.textContent=txt;return e;}
+function list(items,empty){const u=el('ul');if(!items.length){u.append(el('li','calm',empty));}else items.forEach(t=>u.append(el('li','',t)));return u;}
+function lastAiBlock(){const d=el('div','lastai');
+  if(!lastAI){d.textContent='Claude has not touched anything yet.';return d;}
+  d.append(el('b','',lastAI.what)); d.append(el('span','',' · '+new Date(lastAI.at).toLocaleTimeString([], {hour12:false})));
+  if(lastAI.verified!==null){const v=el('div',lastAI.verified?'ok':'bad',(lastAI.verified?'✓ ':'✗ ')+(lastAI.msg||''));d.append(v);} return d;}
+function aiLine(){const m=aiMode();
+  return m==='off'?'AI is OFF. This check is plain desk logic. No AI is involved.':m==='watch'?'AI is on WATCH. It flags what looks wrong and never acts.':'AI is ON. Claude can act on cues. You can still do everything by hand, and you are faster.';}
+function showCard(kind,title){cardKind=kind;const c=$('#aiCard');c.className='card2 '+kind;$('#aiCardTitle').textContent=title;const b=$('#aiCardBody');b.innerHTML='';c.hidden=false;return b;}
+function closeCards(){$('#aiCard').hidden=true;cardKind=null;}
+$('#aiCardClose').addEventListener('click',closeCards);
+function openAys(){const k=nextScene(), p=PRESETS[k], b=showCard('ays','Are you sure?');
+  b.append(el('p','ailine',aiLine()));
+  b.append(el('h4','','Next step: '+p.label));
+  b.append(list(sceneDiff(k),'Nothing changes. You are already there.'));
+  const warn=stateIssues().concat(preflight(k));
+  b.append(el('h4','','Watch out'));
+  b.append(list(warn,humor?'All clear. Even the coffee is in tune.':'Nothing looks wrong.'));
+  b.append(el('h4','','Last AI move')); b.append(lastAiBlock());
+  const row=el('div','crow');const go=el('button','cgo','GO · '+p.label);go.type='button';const no=el('button','cno','Not yet');no.type='button';
+  go.addEventListener('click',()=>{if(!gate('scene'))return;closeCards();write(Object.assign(presetPatch(k),{preset:k}),'DIR','Scene → '+p.label+' (checked first)');});
+  no.addEventListener('click',closeCards); row.append(go,no); b.append(row); go.focus();}
+function openAiCard(){const m=aiMode(), b=showCard('ai','AI on this desk');
+  b.append(el('p','ailine',aiLine()));
+  const sw=el('div','aimode big');
+  for(const k of ['off','watch','on']){const t=el('button','aiseg'+(k===m?' on':''));t.type='button';t.dataset.ai=k;t.setAttribute('aria-pressed',String(k===m));
+    t.append(document.createTextNode(k==='off'?'Off':k==='watch'?'Watch':'On'));t.append(el('small','',k==='off'?'me alone':k==='watch'?'looks, never acts':'works with you'));
+    t.addEventListener('click',()=>setAi(k));sw.append(t);}
+  b.append(sw);
+  b.append(el('h4','','What it can touch now'));
+  b.append(el('p','',m==='on'?'Audio, cameras, lights, scenes and stream start, only inside the cuer’s role. Every move is read back.':m==='watch'?'Nothing. It follows your moves and flags what looks wrong.':'Nothing. It does not watch either.'));
+  b.append(el('h4','','Never'));
+  b.append(el('p','','HUSH and Blackout. Ending the stream always needs a human.'));
+  b.append(el('h4','','Who is in charge'));
+  b.append(el('p','','You. Anyone on the crew can take the AI down. Only the Director brings it back up. Switching it down stops any AI move in progress.'));
+  b.append(el('h4','','Last AI move')); b.append(lastAiBlock());
+  const hr=el('label','humor');const cb=el('input');cb.type='checkbox';cb.id='humorToggle';cb.checked=humor;
+  cb.addEventListener('change',()=>{humor=cb.checked;try{localStorage.setItem('desk.humor',humor?'1':'0');}catch(_){}});
+  hr.append(cb,document.createTextNode(' Humor in warnings (Law Six). On air while someone talks, warnings stay short either way.'));b.append(hr);
+  b.append(el('p','credit2','Made by Ovi with Claude · hold the bubble for SYNTHIOSIS'));}
+window.wcBadgeTap=openAiCard;
+$('#aysBtn').addEventListener('click',openAys);
+
 function render(){
   for(const c of CH){const s=S.ch[c.id],r=refs[c.id];
     if(document.activeElement!==r.range)r.range.value=s.level;
@@ -260,6 +399,7 @@ function render(){
   $('#owns').textContent=myRole==='Director'?'You own every control':'You own: '+(Object.keys(OWN).filter(owns).map(k=>OWN_LABEL[k]).join(', ')||'calls and HUSH')+' · HUSH is everyone’s';
   $('#showLabel').textContent=SHOWS[SHOW];
   renderLxStatic();
+  renderAi();
 }
 
 /* ---------- HUSH: any human on the crew; Claude has no tool ---------- */
@@ -581,16 +721,17 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
 const lxMatch=(rb,want)=>{const {lv}=lxLevels(rb);return !rb.blackout&&SUBS.every(x=>lv[x.id]===want[x.id]);};
 function guardHush(){if(S.hush)throw new Error('HUSH is engaged by the crew. Audio is locked until a human releases it.');}
 async function claudeWrite(patch,what){
+  lastAI={what,at:Date.now(),verified:null}; aiTouch(patch);
   if(fault&&Math.random()<0.25){addLog('CLAUDE',what+' (sent)',myRole,'Claude');return false;} // dropped on the wire
   return write(patch,'CLAUDE',what);
 }
-async function verifyLog(ok,okMsg,badMsg){await write({},ok?'CORE':'FAIL',ok?okMsg:badMsg);}
+async function verifyLog(ok,okMsg,badMsg){if(lastAI&&lastAI.verified===null){lastAI.verified=ok;lastAI.msg=ok?okMsg:badMsg;badge(a=>a.cls(ok?'okp':'badp',1400));}await write({},ok?'CORE':'FAIL',ok?okMsg:badMsg);}
 const chIds=CH.map(c=>c.id);
 const tools=[
-  {name:'read_room',description:'Returns the live shared read-back of every channel (level_db, muted), camera, stream, scene and whether HUSH is engaged.',async execute(){await readback();return snapshot();}},
+  {name:'read_room',description:'Returns the live shared read-back of every channel (level_db, muted), camera, stream, scene and whether HUSH is engaged.',async execute(){guardAI();await readback();return snapshot();}},
   {name:'set_channel',description:'Change one channel. Give mute (true/false) and/or level_db (absolute, -60..10) or adjust_db (relative). Returns sent values, the shared read-back and verified true/false.',
     inputSchema:{type:'object',properties:{channel:{type:'string',enum:chIds},mute:{type:'boolean'},level_db:{type:'number'},adjust_db:{type:'number'}},required:['channel']},
-    async execute(i){guardOwn('audio');guardHush();const id=String(i.channel);if(!S.ch[id])throw new Error('Unknown channel '+id);
+    async execute(i){guardAI();guardOwn('audio');guardHush();const id=String(i.channel);if(!S.ch[id])throw new Error('Unknown channel '+id);
       const want={};
       if(i.level_db!==undefined)want.level=clamp(Math.round(Number(i.level_db)),-60,10);
       else if(i.adjust_db!==undefined)want.level=clamp(S.ch[id].level+Math.round(Number(i.adjust_db)),-60,10);
@@ -603,7 +744,7 @@ const tools=[
       return {channel:id,sent:want,readback:{level_db:cur.level,muted:cur.mute},verified:ok};}},
   {name:'recall_scene',description:'Recall a linked scene: audio, camera and its light cue in one GO. walkin, presentation, qa (presenter live, audience mics armed but muted, camera on audience, house lights up so the audience is on camera), brk (break). Waits for the light fade, then returns read-back and verified.',
     inputSchema:{type:'object',properties:{scene:{type:'string',enum:Object.keys(PRESETS)}},required:['scene']},
-    async execute(i){guardOwn('scene');guardHush();guardBlackout();const k=String(i.scene);const p=PRESETS[k];if(!p)throw new Error('Unknown scene '+k);
+    async execute(i){guardAI();guardOwn('scene');guardHush();guardBlackout();const k=String(i.scene);const p=PRESETS[k];if(!p)throw new Error('Unknown scene '+k);
       await claudeWrite(Object.assign(presetPatch(k),{preset:k}),'Scene → '+p.label+' · audio, camera, LX '+LX[k].n);
       await wait(Math.min(6,LX[k].fade)*1000+150);
       const rb=await readback();
@@ -613,7 +754,7 @@ const tools=[
       return {scene:k,readback:snapshot(),verified:ok};}},
   {name:'set_lights',description:'Lighting only. Fire a light cue by look (walkin, presentation, qa, brk) with its fade, or snap one submaster (sub: house, wash, key, cyc) to level 0-100 %. Waits for the fade, then returns the output read-back and verified. Blackout is human-only and not available here.',
     inputSchema:{type:'object',properties:{look:{type:'string',enum:LX_ORDER},sub:{type:'string',enum:SUBS.map(x=>x.id)},level:{type:'number'}}},
-    async execute(i){guardOwn('lights');guardBlackout();
+    async execute(i){guardAI();guardOwn('lights');guardBlackout();
       if(i.look!==undefined){const k=String(i.look);const L=LX[k];if(!L)throw new Error('Unknown look '+k);
         await claudeWrite(Object.assign(lxPatch(k),{preset:null}),'LX '+L.n+' '+L.label+' · '+L.fade+' s fade');
         await wait(Math.min(6,L.fade)*1000+150);const rb=await readback();const ok=lxMatch(rb,L.lv);
@@ -627,12 +768,12 @@ const tools=[
       throw new Error('Give a look, or a sub with a level.');}},
   {name:'set_camera',description:'Move the PTZ camera to a preset: wide, presenter or audience. Returns read-back and verified.',
     inputSchema:{type:'object',properties:{shot:{type:'string',enum:Object.keys(CAMS)}},required:['shot']},
-    async execute(i){guardOwn('camera');const k=String(i.shot);if(!CAMS[k])throw new Error('Unknown shot '+k);
+    async execute(i){guardAI();guardOwn('camera');const k=String(i.shot);if(!CAMS[k])throw new Error('Unknown shot '+k);
       await claudeWrite({cam:k},'Camera → '+CAMS[k]);const rb=await readback();const ok=rb.cam===k;
       await verifyLog(ok,'Camera read back ✓','Camera did not move ✗');return {shot:k,readback:rb.cam,verified:ok};}},
   {name:'request_stream',description:'Start the stream (applies at once) or request to end it. Ending only creates a confirmation for the human crew; it does not end the stream.',
     inputSchema:{type:'object',properties:{action:{type:'string',enum:['start','end']}},required:['action']},
-    async execute(i){guardOwn('stream');if(String(i.action)==='start'){await claudeWrite({stream:'live'},'Stream → live');const rb=await readback();const ok=rb.stream==='live';
+    async execute(i){guardAI();guardOwn('stream');if(String(i.action)==='start'){await claudeWrite({stream:'live'},'Stream → live');const rb=await readback();const ok=rb.stream==='live';
         await verifyLog(ok,'Stream read back ✓','Stream did not start ✗');return {readback:rb.stream,verified:ok};}
       await write({pendingEnd:true},'CLAUDE','Requested end of stream: waiting for a human');return {status:'awaiting_human_confirmation',stream:S.stream};}}
 ];
@@ -674,7 +815,7 @@ async function offline(cue){
 /* ---------- Claude via the cuing viewer's own account ---------- */
 let sample=null, ctl=null;
 const replyEl=$('#reply'), stopBtn=$('#stopBtn'), go=$('#goBtn');
-function setClaude(on,txt){$('#tClaude').className='tally'+(on?' on-blue':'');$('#tClaudeTxt').textContent=txt;}
+function setClaude(on,txt){claudeAvail={on,txt};renderAi();}
 setClaude(false,'Claude…');
 (async()=>{
   try{sample=window.claude?await claude.use('sample'):null;}catch(e){sample=null;}
@@ -698,6 +839,7 @@ async function sendCue(cue){
   cue=cue.trim(); if(!cue){toast('Cue Claude','Type a cue or tap one of the examples first.');$('#cueInput').focus();return;}
   if(!canWrite){toast('Read only','Ask the owner for edit access to cue the desk.');return;}
   addLog('DIR','Cue: '+cue,myRole,'you');
+  if(aiMode()!=='on'){replyEl.textContent=aiMode()==='watch'?'AI is on WATCH: it looks and never acts. Do it by hand, or switch the bubble to ON.':'AI is OFF: the desk is all yours. Switch the bubble to ON to cue Claude.';return;}
   if(!sample){replyEl.textContent='Working…';go.disabled=true;try{replyEl.textContent=await offline(cue);}finally{go.disabled=false;}return;}
   ctl=new AbortController(); go.disabled=true; stopBtn.hidden=false; replyEl.textContent='Thinking…';
   try{
@@ -729,13 +871,14 @@ sheetBtn.addEventListener('click',()=>setSheet(!document.body.classList.contains
 addEventListener('keydown',e=>{
   if(e.metaKey||e.ctrlKey||e.altKey)return;
   const tag=(e.target&&e.target.tagName)||''; const typing=/INPUT|SELECT|TEXTAREA/.test(tag)&&e.target.type!=='range'&&e.target.type!=='checkbox';
-  if(e.key==='Escape'){if(document.body.classList.contains('sheetOpen'))setSheet(false);if(typing)e.target.blur();return;}
+  if(e.key==='Escape'){closeCards();if(document.body.classList.contains('sheetOpen'))setSheet(false);if(typing)e.target.blur();return;}
   if(typing)return;
   const k=e.key.toLowerCase(); let el=null;
   if(/^[1-5]$/.test(k))el=document.querySelectorAll('#stripList .mute')[+k-1];
   else if('qwer'.includes(k)&&k.length===1)el=document.querySelector('#presetRow .sel[data-k="'+['walkin','presentation','qa','brk']['qwer'.indexOf(k)]+'"]');
   else if('sghc'.includes(k)&&k.length===1)el=document.querySelector('.callbtn[data-call="'+{s:'Standby',g:'Go',h:'Hold',c:'Clear'}[k]+'"]');
   else if(k==='l')el=$('#lxGo');
+  else if(k==='a'){e.preventDefault();openAys();return;}
   else if(k==='/'){e.preventDefault();$('#cueInput').focus();return;}
   if(el){e.preventDefault();el.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true}));el.click();setTimeout(()=>document.dispatchEvent(new PointerEvent('pointerup',{bubbles:true})),120);}
 });
