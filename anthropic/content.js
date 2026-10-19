@@ -1,11 +1,4 @@
 /* Run of Show content: the words on the page. Edit here; index.html builds the page from it. */
-/* Card pictures are square: show them whole instead of cropping to 16:9. */
-(function(){var s=document.createElement('style');s.textContent='#broll,.card{grid-template-columns:minmax(0,1fr)}.card img{aspect-ratio:auto;height:auto;min-width:0;width:calc(100% - 20px);max-width:calc(100% - 20px);margin:10px auto 0;border-radius:10px;object-fit:contain;background:#05070c}@media (min-width:700px){.card img{max-height:560px}}';document.head.appendChild(s);
-/* Belt and braces: once the cards exist, pin every card and picture to the screen width with inline styles. */
-function pin(){document.documentElement.style.overflowX='hidden';document.body.style.overflowX='hidden';var w=document.getElementById('broll');if(w){w.style.maxWidth='100%';w.style.overflow='hidden';}
-document.querySelectorAll('#broll .card').forEach(function(c){c.style.maxWidth='100%';c.style.minWidth='0';c.style.boxSizing='border-box';});
-document.querySelectorAll('#broll .card img').forEach(function(i){i.style.cssText='display:block;box-sizing:border-box;width:calc(100% - 20px);max-width:calc(100% - 20px);height:auto;max-height:none;aspect-ratio:auto;margin:10px auto 0;border-radius:10px;object-fit:contain;';});}
-addEventListener('DOMContentLoaded',pin);addEventListener('load',pin);})();
 window.ROS_CONTENT=(function(){
 "use strict";
 var CUES=[
