@@ -1,0 +1,18 @@
+{
+  "name": "showgate",
+  "version": "0.1.0",
+  "description": "Room connector between Claude and Q-SYS (QRC) with human-held rules. Concept by Ovi, built with Claude.",
+  "main": "showgate.js",
+  "scripts": {
+    "proof": "node proof-run.js",
+    "core": "node mock-core.js",
+    "gate": "node showgate.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.1",
+    "zod": "^3.25.76"
+  }
+}
