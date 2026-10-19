@@ -10,10 +10,11 @@ A broadcast desk for live and hybrid shows, built so the director is not glued t
 
 - **Cue by voice or text.** "Q&A, open audience mic two." Claude makes the change, then reads the room back so you know it happened.
 - **HUSH is human only.** One tap cuts every mic. Releasing it takes a deliberate hold. Claude cannot touch it.
-- **Roles.** Director, A1 Audio, Camera, Stream, Floor. Each person owns their part; the director owns everything.
+- **Roles.** Director, A1 Audio, Camera, Stream, Lighting, Floor. Each person owns their part; the director owns everything.
 - **Crew on the same show.** Call sheet, check-in, cue lights (Standby, Go, Hold, Clear) and a shared show log.
+- **Lights on cue with sound and cameras.** One scene GO moves audio, camera and the light cue together, with real fade times. The LD has a cue stack and house, wash, key and cyc submasters, and the camera previews show what the lights are doing. **Blackout is human only**, like HUSH.
 - **Camera previews** with program on air, and **PFL** headphone listening per channel.
-- **Tablet, desktop console, or several portrait monitors** with one mouse across all of them, each window showing one part: Audio, Picture, or Calls & Claude.
+- **Tablet, desktop console, or several portrait monitors** with one mouse across all of them, each window showing one part: Audio, Picture, Lighting, or Calls & Claude.
 
 It is a working simulation. No real equipment is connected yet. This installable version uses an offline cue parser; the live-Claude version runs inside Claude.
 
