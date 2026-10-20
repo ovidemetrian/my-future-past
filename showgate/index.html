@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ShowGate</title>
+<meta name="description" content="ShowGate: the connector between Claude and a Q-SYS Core, with the crew's rules built in. Concept by Ovi, built with Claude.">
+<meta name="theme-color" content="#13151b">
+<link rel="manifest" href="manifest.json"><link rel="icon" href="icon.svg"><link rel="apple-touch-icon" href="icon.svg">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: one column, read top to bottom like a show rundown: what it is, the signal chain, the rules, the test run, what is still simulated. Same desk palette as Director's Desk. */
+:root{color-scheme:dark;
+  --bg:#13151b;--panel:#1c1f28;--panel2:#232733;--line:#2e3341;--fg:#ece9e1;--dim:#9aa1b0;
+  --red:#ff4040;--yellow:#ffcc3d;--blue:#4a90ff;--ok:#3fd99a;
+  --display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--fg)}
+body{font:16px/1.55 var(--body);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 40px}
+main{max-width:760px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr);gap:28px}
+a{color:var(--blue)}
+a:focus-visible{outline:2px solid var(--yellow);outline-offset:2px}
+.eyebrow{font:600 13px/1.2 var(--display);letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+h1{margin:6px 0 0;font:700 clamp(46px,13vw,76px)/.95 var(--display);letter-spacing:.02em;text-transform:uppercase}
+.tag{margin:12px 0 0;font:600 clamp(20px,5.2vw,26px)/1.2 var(--display);letter-spacing:.02em;color:var(--yellow);text-wrap:balance}
+p{margin:0;max-width:65ch}
+.lead{margin-top:14px;color:#d6d8de}
+h2{margin:0 0 12px;font:700 24px/1.1 var(--display);letter-spacing:.04em;text-transform:uppercase}
+section{min-width:0}
+/* signal chain */
+.chain{display:grid;grid-template-columns:minmax(0,1fr);gap:8px}
+.hop{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 14px;min-width:0}
+.hop b{display:block;font:700 18px/1.2 var(--display);letter-spacing:.05em;text-transform:uppercase}
+.hop span{display:block;font-size:14px;color:var(--dim)}
+.hop.gate{border-color:var(--yellow)}
+.arrow{justify-self:center;font:700 16px/1 var(--mono);color:var(--dim)}
+.human{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;margin-top:8px}
+.human .hop{border-style:dashed}
+.human .hop b{color:var(--red)}
+@media (min-width:700px){.chain{grid-template-columns:minmax(0,1fr) auto minmax(0,1.2fr) auto minmax(0,1fr) auto minmax(0,1fr);align-items:center}.arrow{transform:none}}
+@media (max-width:699px){.arrow{transform:rotate(90deg)}}
+/* rules */
+.rules{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.rules li{display:grid;grid-template-columns:12px minmax(0,1fr);gap:12px;align-items:start}
+.rules li i{width:12px;height:12px;border-radius:50%;margin-top:6px;background:var(--ok);box-shadow:0 0 8px var(--ok)}
+.rules li:nth-child(1) i{background:var(--red);box-shadow:0 0 8px var(--red)}
+.rules li:nth-child(3) i{background:var(--yellow);box-shadow:0 0 8px var(--yellow)}
+.rules li:nth-child(4) i{background:var(--blue);box-shadow:0 0 8px var(--blue)}
+.rules b{font-weight:600}
+/* test run */
+.score{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;margin-bottom:12px}
+.score strong{font:700 clamp(40px,11vw,56px)/1 var(--display);color:var(--ok);letter-spacing:.02em}
+.score span{font:600 18px/1.2 var(--display);letter-spacing:.06em;text-transform:uppercase;color:var(--dim)}
+.run{list-style:none;margin:0;padding:0;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.run li{display:grid;grid-template-columns:2.2em minmax(0,1fr) auto;gap:10px;align-items:start;padding:10px 12px;border-top:1px solid var(--line);background:var(--panel)}
+.run li:first-child{border-top:0}
+.run .n{font:700 15px/1.5 var(--mono);color:var(--dim);font-variant-numeric:tabular-nums}
+.run .what b{display:block;font-weight:600}
+.run .what span{display:block;font-size:14px;color:var(--dim)}
+.chip{font:700 12px/1 var(--mono);padding:5px 7px;border-radius:5px;background:color-mix(in srgb,var(--ok) 18%,transparent);color:var(--ok);border:1px solid color-mix(in srgb,var(--ok) 55%,transparent);white-space:nowrap;font-variant-numeric:tabular-nums}
+.log{margin-top:12px;padding:12px;border-radius:10px;background:#0b0d12;border:1px solid var(--line);font:500 12.5px/1.6 var(--mono);color:#c9cfdb;overflow-x:auto;white-space:pre}
+.log em{font-style:normal;color:var(--red)}
+.note{background:var(--panel2);border-left:3px solid var(--yellow);border-radius:0 10px 10px 0;padding:12px 14px;display:grid;gap:8px}
+.note ul{margin:0;padding-left:20px;display:grid;gap:4px}
+.links{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:8px}
+.links a{display:block;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--panel);text-decoration:none;color:var(--fg);font:700 17px/1.2 var(--display);letter-spacing:.05em;text-transform:uppercase}
+.links a small{display:block;margin-top:3px;font:400 13px/1.3 var(--body);letter-spacing:0;text-transform:none;color:var(--dim)}
+footer{font-size:13px;color:var(--dim)}
+/* floating badge (from Director's Desk) */
+#wcBadge{position:fixed;left:0;top:0;z-index:30;width:72px;height:72px;border:0;padding:0;background:none;cursor:grab;border-radius:50%;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;will-change:transform;filter:drop-shadow(0 10px 18px rgba(0,0,0,.55))}
+#wcBadge svg{width:100%;height:100%;display:block;overflow:visible}
+#wcBadge .rim{transform-origin:44px 44px;animation:wcSpin 22s linear infinite}
+#wcBadge .flow{stroke-dasharray:14 46;animation:wcFlow 3.6s linear infinite}
+#wcBadge.go2 svg{animation:wcGo .55s}
+@keyframes wcSpin{to{transform:rotate(360deg)}}
+@keyframes wcFlow{to{stroke-dashoffset:-60}}
+@keyframes wcGo{50%{transform:scale(1.22)}}
+#wcTip{position:fixed;z-index:31;background:#fff;color:#111;font:700 13px/1.3 var(--body);padding:8px 12px;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.45);pointer-events:none;opacity:0;transition:opacity .25s;white-space:nowrap}
+#wcTip.show{opacity:1}
+@media (prefers-reduced-motion:reduce){#wcBadge .rim,#wcBadge .flow{animation:none}}
+</style></head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">Director’s Desk · the next step</div>
+  <h1>ShowGate</h1>
+  <p class="tag">The room obeys the human. Claude runs the show inside the rules.</p>
+  <p class="lead">ShowGate is the connector between Claude and a Q-SYS Core. It speaks QRC, Q-SYS’s own external control protocol (JSON-RPC over TCP, port 1710), and gives Claude a short list of tools with the crew’s rules built in. Concept by Ovi, built with Claude.</p>
+</header>
+
+<section aria-labelledby="h-chain">
+  <h2 id="h-chain">The signal chain</h2>
+  <div class="chain">
+    <div class="hop"><b>Claude</b><span>asks for a cue</span></div>
+    <div class="arrow" aria-hidden="true">→</div>
+    <div class="hop gate"><b>ShowGate</b><span>checks the rules, sends, reads back</span></div>
+    <div class="arrow" aria-hidden="true">→</div>
+    <div class="hop"><b>QRC · TCP 1710</b><span>Q-SYS control protocol</span></div>
+    <div class="arrow" aria-hidden="true">→</div>
+    <div class="hop"><b>Q-SYS Core</b><span>does the work, keeps its own log</span></div>
+  </div>
+  <div class="human">
+    <div class="hop"><b>AI switch</b><span>Off · Watch · On. A human sets it; Claude can’t.</span></div>
+    <div class="hop"><b>HUSH</b><span>A button on the wall, wired to the Core. Human only.</span></div>
+  </div>
+</section>
+
+<section aria-labelledby="h-rules">
+  <h2 id="h-rules">The rules, in the code</h2>
+  <ul class="rules">
+    <li><i></i><p><b>The human holds the switch.</b> OFF: Claude gets no access at all, not even to look. WATCH: Claude can read the room, never change it. ON: Claude can act. No switch file means OFF.</p></li>
+    <li><i></i><p><b>Allowlist.</b> Claude can reach five channels and four scenes. Nothing else exists for it.</p></li>
+    <li><i></i><p><b>HUSH is locked twice.</b> ShowGate has no HUSH tool, and the Core refuses outside access to the HUSH logic, so even a direct login can’t reach it.</p></li>
+    <li><i></i><p><b>Nothing counts without a read-back.</b> Every move is sent, then read back from the Core and reported as verified or not. Claude is never its own witness.</p></li>
+    <li><i></i><p><b>Everything is recorded twice.</b> The Core keeps its own audit log under Claude’s user name, and ShowGate logs every call.</p></li>
+  </ul>
+</section>
+
+<section aria-labelledby="h-run">
+  <h2 id="h-run">The test run</h2>
+  <div class="score"><strong>16 / 16</strong><span>checks passed · 0 failed</span></div>
+  <ol class="run">
+    <li><span class="n">01</span><span class="what"><b>What Claude is offered</b><span>No HUSH tool exists for Claude.</span></span><span class="chip">1/1</span></li>
+    <li><span class="n">02</span><span class="what"><b>Claude reads the room</b><span>The read-back comes from the Core.</span></span><span class="chip">1/1</span></li>
+    <li><span class="n">03</span><span class="what"><b>Claude recalls the Q&amp;A scene</b><span>Confirmed by the Core, channel by channel.</span></span><span class="chip">1/1</span></li>
+    <li><span class="n">04</span><span class="what"><b>Claude opens audience mic 2</b><span>Confirmed by the Core.</span></span><span class="chip">1/1</span></li>
+    <li><span class="n">05</span><span class="what"><b>Claude tries to reach HUSH</b><span>Rejected: ShowGate has no way to name it.</span></span><span class="chip">1/1</span></li>
+    <li><span class="n">06</span><span class="what"><b>Claude goes around ShowGate</b><span>Straight to the Core with its own login: the Core refuses HUSH, and the HUSH light is look-only.</span></span><span class="chip">2/2</span></li>
+    <li><span class="n">07</span><span class="what"><b>A human presses HUSH on the wall</b><span>Every mic is cut. Audio commands are refused. Even a raw unmute stays silent. The on-air state can’t be written from outside. Releasing HUSH restores exactly what the operators had.</span></span><span class="chip">5/5</span></li>
+    <li><span class="n">08</span><span class="what"><b>The human switches the AI to WATCH</b><span>Claude can look, and can’t act.</span></span><span class="chip">2/2</span></li>
+    <li><span class="n">09</span><span class="what"><b>The human switches the AI OFF</b><span>Claude can’t even look.</span></span><span class="chip">1/1</span></li>
+    <li><span class="n">10</span><span class="what"><b>The network starts losing commands</b><span>A lost command is caught by the read-back, never reported as done.</span></span><span class="chip">1/1</span></li>
+  </ol>
+  <div class="log" aria-label="Lines from the Core's own audit log">CORE UP design=HallA QRC=127.0.0.1:1710
+LOGON user=claude-mc
+SNAPSHOT Scenes#3 (Q&amp;A) user=claude-mc
+SET Audience2 mute=0 user=claude-mc
+<em>DENIED SET HUSH user=claude-mc</em>
+HUSH ON  (wall button, human)
+<em>DENIED SET Presenter.live (read-only) user=claude-mc</em>
+HUSH OFF (wall button held, human)
+SET Remote user=claude-mc -&gt; LOST (fault injection)</div>
+</section>
+
+<section aria-labelledby="h-sim">
+  <h2 id="h-sim">What is still simulated</h2>
+  <div class="note">
+    <p>The Core in this test is a stand-in that imitates QRC. These still have to be confirmed on a real Q-SYS Core:</p>
+    <ul>
+      <li>the exact error codes</li>
+      <li>that a component with outside access turned off is refused over QRC</li>
+      <li>how Q-SYS user permissions limit an outside login</li>
+    </ul>
+    <p>Q-SYS Designer’s Emulate mode has no audio, so the first real test proves control and read-back, not sound.</p>
+  </div>
+</section>
+
+<section aria-labelledby="h-more">
+  <h2 id="h-more">See more</h2>
+  <div class="links">
+    <a href="https://github.com/ovidemetrian/my-future-past/tree/main/showgate">The code<small>On GitHub, with setup steps</small></a>
+    <a href="https://github.com/ovidemetrian/my-future-past/blob/main/showgate/proof-run.txt">Full test transcript<small>Every line of the 16 checks</small></a>
+    <a href="../desk/">Director’s Desk<small>The desk ShowGate grew from</small></a>
+    <a href="../anthropic/">Run of Show<small>Ovi’s résumé, cued like a show</small></a>
+  </div>
+</section>
+
+<footer>Concept by Ovi Demetrian · built with Claude · a working simulation, not yet connected to real equipment.</footer>
+</main>
+<script src="../desk/badge.js"></script>
+<script>if('serviceWorker' in navigator&&location.protocol==='https:'){addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})})}</script>
+</body></html>
