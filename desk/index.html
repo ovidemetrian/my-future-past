@@ -771,6 +771,29 @@ body[data-screen="lights"] #app .tile.pgm{grid-column:1/-1;grid-row:auto}
   .aiseg{min-height:34px}
   #app .ays small{display:none}
 }
+
+/* 60-second demo + first-visit card */
+.demobtn{display:inline-flex;align-items:baseline;gap:8px;margin-top:6px;padding:6px 12px;border-radius:6px;border:1.5px solid var(--blue);background:color-mix(in srgb,var(--blue) 14%,transparent);color:var(--fg);font-family:var(--display);font-weight:700;font-size:15px;letter-spacing:.06em;cursor:pointer}
+.demobtn small{font-family:var(--body);font-weight:500;font-size:11px;letter-spacing:0;opacity:.75}
+.demobar{position:fixed;left:50%;transform:translateX(-50%);top:calc(10px + env(safe-area-inset-top,0px));width:min(94vw,620px);display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;border:2px solid var(--blue);background:color-mix(in srgb,var(--blue) 22%,var(--panel));box-shadow:0 10px 30px rgba(0,0,0,.5);z-index:30}
+.demobar[hidden]{display:none}
+.demobar .dstep{font-family:var(--display);font-weight:700;color:var(--yellow);letter-spacing:.06em;flex:none}
+.demobar .dtxt{flex:1;min-width:0;font-weight:600;line-height:1.3}
+.demobar .dbtn{flex:none;padding:8px 12px;border-radius:6px;border:1.5px solid var(--fg);background:transparent;color:var(--fg);font-weight:700;cursor:pointer}
+.demobar .dbtn[hidden]{display:none}
+.introcard{position:fixed;inset:0;z-index:40;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(8,9,12,.78)}
+.introcard[hidden]{display:none}
+.intro-in{width:min(100%,460px);padding:22px 20px;border-radius:14px;border:2px solid var(--yellow);background:var(--panel);box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.intro-in .ikicker{margin:0 0 6px;font-family:var(--display);font-weight:600;letter-spacing:.12em;text-transform:uppercase;font-size:13px;color:var(--dim)}
+.intro-in h2{margin:0 0 10px;font-family:var(--display);font-weight:700;font-size:34px;line-height:1.05;color:var(--fg)}
+.intro-in h2 span{color:var(--blue)}
+.intro-in p{margin:0 0 14px;line-height:1.45}
+.intro-in .irow{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px}
+.intro-in .iplay{flex:1 1 220px;padding:14px 16px;border-radius:8px;border:none;background:var(--red);color:#1a0000;font-family:var(--display);font-weight:700;font-size:19px;letter-spacing:.04em;cursor:pointer}
+.intro-in .iskip{flex:1 1 120px;padding:14px 16px;border-radius:8px;border:1.5px solid var(--dim);background:transparent;color:var(--fg);font-weight:600;cursor:pointer}
+.intro-in .inote{margin:0;font-size:12px;color:var(--dim)}
+@media (min-width:1100px) and (min-height:620px){.demobar{top:auto;bottom:calc(34px + env(safe-area-inset-bottom,0px))}}
+@media (max-width:520px){.demobar{flex-wrap:wrap}.demobar .dtxt{flex-basis:calc(100% - 50px)}.demobar .dbtn{margin-left:auto}}
 </style>
 
 <div class="wrap" id="app">
@@ -778,6 +801,7 @@ body[data-screen="lights"] #app .tile.pgm{grid-column:1/-1;grid-row:auto}
     <div class="brand">
       <h1>Director's Desk</h1>
       <p><span id="showLabel">Hall A · 200 seats · hybrid on Google Meet</span> · <b>simulated</b> Q-SYS Core</p>
+      <button class="demobtn" id="demoBtn" type="button">▶ Run the show <small>60-second demo</small></button>
     </div>
     <div class="tallies">
       <span class="aidock" id="aiDock" aria-hidden="true"></span>
@@ -937,6 +961,8 @@ body[data-screen="lights"] #app .tile.pgm{grid-column:1/-1;grid-row:auto}
 <div class="card2" id="aiCard" hidden role="dialog" aria-labelledby="aiCardTitle"><div class="card2-in"><header><h3 id="aiCardTitle">Card</h3><button class="x2" type="button" id="aiCardClose" aria-label="Close">✕</button></header><div class="card2-body" id="aiCardBody"></div></div></div>
 <div class="watchflash" id="watchFlash" hidden role="status" aria-live="polite"><b>Are you sure?</b><span id="watchTxt"></span><div class="wrow"><button type="button" class="wbtn" id="watchUndo">Undo</button><button type="button" class="wbtn ghost" id="watchOk">Keep it</button></div></div>
 
+<div class="demobar" id="demoBar" hidden role="status" aria-live="polite"><span class="dstep" id="demoStep"></span><span class="dtxt" id="demoTxt"></span><button type="button" class="dbtn" id="demoStopBtn" hidden>Stop</button><button type="button" class="dbtn" id="demoClose" hidden>Close</button></div>
+<div class="introcard" id="introCard" hidden role="dialog" aria-modal="true" aria-labelledby="introTitle"><div class="intro-in"><p class="ikicker">Director's Desk</p><h2 id="introTitle">Human directs.<br><span>Claude operates.</span></h2><p>A broadcast desk where you call the cue and Claude runs sound, cameras and lights. HUSH and Blackout stay human only.</p><div class="irow"><button type="button" class="iplay" id="introPlay">▶ Watch the 60-second show</button><button type="button" class="iskip" id="introSkip">I'll explore</button></div><p class="inote">A working simulation. No real equipment is connected.</p></div></div>
 <script src="desk.js"></script>
 <script src="badge.js"></script>
 </body></html>

@@ -882,6 +882,66 @@ addEventListener('keydown',e=>{
   else if(k==='/'){e.preventDefault();$('#cueInput').focus();return;}
   if(el){e.preventDefault();el.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true}));el.click();setTimeout(()=>document.dispatchEvent(new PointerEvent('pointerup',{bubbles:true})),120);}
 });
+/* ---------- 60-second demo: "Run the show" ----------
+   Plays a short scripted show on a solo desk, then puts everything back exactly as it was.
+   Never runs inside a live crew show. HUSH stays a human move. */
+let demoOn=false, demoStop=false, demoSnap=null, demoT=null, demoWake=null;
+const demoBar=$('#demoBar'), demoTxt=$('#demoTxt'), demoStep=$('#demoStep');
+function demoSay(n,txt){demoStep.textContent=n;demoTxt.textContent=txt;demoBar.hidden=false;}
+function demoWait(ms){return new Promise(r=>{demoWake=r;demoT=setTimeout(r,ms);});}
+function demoClaude(patch,what){lastAI={what,at:Date.now(),verified:null};aiTouch(patch);return write(patch,'CLAUDE',what);}
+function demoScene(k){return Object.assign(presetPatch(k),{preset:k});}
+function demoRestore(){if(!demoSnap)return;const s=demoSnap;demoSnap=null;
+  watchMute=true;
+  try{write({ch:s.ch,cam:s.cam,preset:s.preset===undefined?null:s.preset,lx:s.lx,stream:s.stream,pendingEnd:!!s.pendingEnd,hush:!!s.hush,blackout:!!s.blackout,ai:s.ai||'on'},'DIR','Demo over · desk restored');}
+  finally{watchMute=false;}}
+async function runDemo(){
+  if(demoOn)return;
+  if(docRef){toast('Demo','The demo runs on a solo desk, never inside a live crew show.');return;}
+  if(!canWrite){toast('Demo','This desk is read only.');return;}
+  demoOn=true; demoStop=false; demoSnap=JSON.parse(JSON.stringify(S)); closeCards();
+  $('#demoClose').hidden=true; $('#demoStopBtn').hidden=false;
+  const steps=[
+    ['1/7','Doors open. Claude sets sound, camera and lights in one move.',async()=>{await write({ai:'on',hush:false,blackout:false},'DIR','Demo: AI → '+AI_LABEL.on);await demoClaude(demoScene('walkin'),'Scene → Walk-in · audio, camera, LX 1 (5 s)');},5000],
+    ['2/7','Showtime. You say "presentation". Mics, presenter camera and lights move together.',()=>demoClaude(demoScene('presentation'),'Scene → Presentation · audio, camera, LX 2 (3 s)'),5000],
+    ['3/7','Claude takes the stream live and reads the room back, so you know it happened.',()=>demoClaude({stream:'live',pendingEnd:false},'Stream → live · read back OK'),4000],
+    ['4/7','Break. Now the human steps the AI down to WATCH: it looks, it never acts.',async()=>{await demoClaude(demoScene('brk'),'Scene → Break · audio, camera, LX 4 (5 s)');await demoWait(2200);if(!demoStop)await write({ai:'watch'},'DIR','AI → '+AI_LABEL.watch);},4500],
+    ['5/7','A human opens audience mic 1 during the break. Watch what Claude says.',()=>{delete ruleAt['aud-aud1'];return write({ch:{aud1:{mute:false}},preset:null},'DIR','Audience 1 live');},6500],
+    ['6/7','Something goes wrong? One tap: HUSH. Human only. Claude can never touch it.',()=>{$('#watchFlash').hidden=true;return write({hush:true},'DIR','HUSH engaged: all mics and remote audio cut');},4500],
+    ['7/7','In a real show, releasing HUSH takes a deliberate hold. The demo lets go for you.',()=>write({hush:false},'DIR','HUSH released (demo)'),3500]
+  ];
+  try{
+    for(const [n,txt,act,ms] of steps){
+      if(demoStop)break;
+      demoSay(n,txt); await act();
+      if(demoStop)break;
+      await demoWait(ms);
+    }
+  }catch(_){}
+  $('#watchFlash').hidden=true;
+  demoRestore(); demoOn=false; $('#demoStopBtn').hidden=true;
+  if(demoStop){demoBar.hidden=true;return;}
+  demoSay('','That’s the desk. Human directs. Claude operates. Your turn.'); $('#demoClose').hidden=false;
+  clearTimeout(demoT); demoT=setTimeout(()=>{if(!demoOn)demoBar.hidden=true;},9000);
+}
+function stopDemo(){if(!demoOn){demoBar.hidden=true;return;}demoStop=true;clearTimeout(demoT);if(demoWake)demoWake();}
+$('#demoBtn').addEventListener('click',runDemo);
+$('#demoStopBtn').addEventListener('click',stopDemo);
+$('#demoClose').addEventListener('click',()=>{demoBar.hidden=true;});
+addEventListener('keydown',e=>{if(e.key==='Escape'&&demoOn)stopDemo();});
+
+/* First visit: a short hello, so a newcomer knows what they're looking at */
+(function intro(){
+  let seen=false; try{seen=localStorage.getItem('desk.introSeen')==='1';}catch(_){}
+  if(seen||location.hash)return;
+  const box=$('#introCard'); if(!box)return;
+  const done=()=>{box.hidden=true;try{localStorage.setItem('desk.introSeen','1');}catch(_){}};
+  $('#introPlay').addEventListener('click',()=>{done();runDemo();});
+  $('#introSkip').addEventListener('click',done);
+  box.addEventListener('keydown',e=>{if(e.key==='Escape')done();});
+  box.hidden=false; setTimeout(()=>{try{$('#introPlay').focus();}catch(_){}},50);
+})();
+
 render();
 addLog('CORE','Design running · Presentation scene loaded','');
 })();

@@ -8,6 +8,7 @@ A broadcast desk for live and hybrid shows, built so the director is not glued t
 
 ## What it does today
 
+- **Run the show.** A 60-second demo plays a short scripted show: Claude moves sound, cameras and lights, WATCH flags a mistake, a human hits HUSH. Then the desk goes back exactly as it was. It never runs inside a live crew show.
 - **Cue by voice or text.** "Q&A, open audience mic two." Claude makes the change, then reads the room back so you know it happened.
 - **HUSH is human only.** One tap cuts every mic. Releasing it takes a deliberate hold. Claude cannot touch it.
 - **Roles.** Director, A1 Audio, Camera, Stream, Lighting, Floor. Each person owns their part; the director owns everything.
