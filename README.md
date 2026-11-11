@@ -58,7 +58,7 @@ Reduced-motion preferences honored throughout — every animation checks `prefer
 One file, ~890 KB (audio & artwork embedded)  
 Written entirely on an Android phone
 
-30 years of audio-video integration inform the design principle: **The interface is the instrument** — technology disappears so the human experience remains.
+20+ years of audio-video integration inform the design principle: **The interface is the instrument** — technology disappears so the human experience remains.
 
 ---
 
