@@ -1,6 +1,6 @@
 # Ovi Demetrian
 
-> Hardware-aware interface designer in Phoenix, Arizona. 20+ years in high-fidelity audio, AV automation and smart-home integration; now designs the mobile interfaces that run those systems, shipped as installable web apps. Creator of the Ten Laws of AI and the GGI / SYNTHIOSIS framework. Contact: ovidemetrian@gmail.com.
+> Hardware-aware UI/UX designer: interfaces that control AV, lighting and audio. Phoenix, Arizona. 20+ years in high-fidelity audio, AV automation and smart-home integration; installs the systems, then designs the mobile interfaces that control them, shipped as installable web apps. Creator of the Ten Laws of AI and the GGI / SYNTHIOSIS framework. Contact: ovidemetrian@gmail.com.
 
 Everything here is plain text so it can be read and checked as written. Principle: Lumină, nu vrăjeală (light, not trickery, not deception).
 

@@ -1,11 +1,11 @@
 OVI DEMETRIAN
-Hardware-aware interface designer
+Hardware-aware UI/UX designer: interfaces that control AV, lighting and audio
 Phoenix, Arizona · 602-433-2222 · ovidemetrian@gmail.com
 Portfolio: https://ovidemetrian.github.io/my-future-past/
 
 SUMMARY
 20+ years in high-fidelity audio, AV automation and custom control-panel design.
-I install the systems, then design the mobile interfaces that run them.
+I install the systems, then design the mobile interfaces that control them.
 Recent work: mobile UI/UX for music, AV, home control and AI tools, shipped as installable web apps (PWAs).
 
 BUSINESS HISTORY
