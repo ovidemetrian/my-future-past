@@ -1,0 +1,41 @@
+OVI DEMETRIAN · PORTFOLIO (plain text)
+Hardware-aware interface designer · ovidemetrian@gmail.com
+Concept and design: Ovi Demetrian. Built with Claude.
+
+PORTFOLIO SITE
+- The Future Past: résumé, cover letter, audio demos, tracks
+  https://ovidemetrian.github.io/my-future-past/
+
+INTERFACES ("Ovi style" panels)
+- BLISS: an AI interface without the chat box; question and answer lock as two L shapes
+  https://ovidemetrian.github.io/BLISS/
+- Director's Desk: tablet broadcast desk for a crew; the human keeps the final call
+  https://ovidemetrian.github.io/directors-desk/
+- InstaJam: phone-first music app; hum it, write it, make it, mix it, ship it
+  https://ovidemetrian.github.io/INSTAJAM/
+- SONOS Panel (unofficial concept): the whole house understood at a glance
+  https://ovidemetrian.github.io/SONOS-panel/
+- SONOR & ACTION: what happens after Generate; songs delivered as gifts, not files
+  https://ovidemetrian.github.io/ACTION/
+
+AI GOVERNANCE (GGI / SYNTHIOSIS)
+- SYNTHIOSIS hub: the framework, one idea per screen
+  https://ovidemetrian.github.io/SYNTHIOSIS/
+- Neogrammar master class: four gates, 25 questions for testing AI output
+  https://ovidemetrian.github.io/SYNTHIOSIS/neogrammar/
+- The Ten Laws of AI
+  https://10lawsofai.com
+- GGI Control Panel: one prompt to many AIs, gated by Meh, But, Aha, Pám Pám
+  https://ovidemetrian.github.io/GGI-GENIAL-GENUINE-INTELLIGENCE/
+- Möbius Bar Desk: three verification agents
+  https://ovidemetrian.github.io/mobiusbar/
+
+BUSINESSES
+- Media Content Delivery LLC: https://www.mediacontentdelivery.com
+- Smart Homes by Ovi: https://www.smarthomesbyovi.com
+
+MUSIC AND VIDEO
+- Ovi and the Möbius Bar: https://youtube.com/@mobiusbar
+
+CODE
+- https://github.com/ovidemetrian

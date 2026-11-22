@@ -1,0 +1,24 @@
+# Ovi Demetrian
+
+> Hardware-aware interface designer in Phoenix, Arizona. 20+ years in high-fidelity audio, AV automation and smart-home integration; now designs the mobile interfaces that run those systems, shipped as installable web apps. Creator of the Ten Laws of AI and the GGI / SYNTHIOSIS framework. Contact: ovidemetrian@gmail.com.
+
+Everything here is plain text so it can be read and checked as written. Principle: Lumină, nu vrăjeală (light, not trickery, not deception).
+
+## Start here
+
+- [Résumé (plain text)](https://ovidemetrian.github.io/my-future-past/resume.txt): experience, skills, availability.
+- [Portfolio (plain text)](https://ovidemetrian.github.io/my-future-past/portfolio.txt): every live project with one line each.
+- [The Future Past](https://ovidemetrian.github.io/my-future-past/): the full portfolio site.
+
+## Work
+
+- [SYNTHIOSIS hub](https://ovidemetrian.github.io/SYNTHIOSIS/): the GGI framework, with its own [llms.txt](https://ovidemetrian.github.io/SYNTHIOSIS/llms.txt).
+- [The Ten Laws of AI](https://10lawsofai.com)
+- [BLISS](https://ovidemetrian.github.io/BLISS/): an AI interface without the chat box.
+- [Director's Desk](https://ovidemetrian.github.io/directors-desk/): tablet broadcast desk.
+
+## Optional
+
+- [Media Content Delivery](https://www.mediacontentdelivery.com)
+- [Smart Homes by Ovi](https://www.smarthomesbyovi.com)
+- [GitHub](https://github.com/ovidemetrian)

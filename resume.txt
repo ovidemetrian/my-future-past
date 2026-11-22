@@ -1,0 +1,53 @@
+OVI DEMETRIAN
+Hardware-aware interface designer
+Phoenix, Arizona · 602-433-2222 · ovidemetrian@gmail.com
+Portfolio: https://ovidemetrian.github.io/my-future-past/
+
+SUMMARY
+20+ years in high-fidelity audio, AV automation and custom control-panel design.
+I install the systems, then design the mobile interfaces that run them.
+Recent work: mobile UI/UX for music, AV, home control and AI tools, shipped as installable web apps (PWAs).
+
+BUSINESS HISTORY
+1994 - 2013   Absolute Sound Systems, founder
+2013 - now    Media Content Delivery LLC, founder (the continuation)
+2023 - now    Smart Homes by Ovi, system architect and designer
+
+HARDWARE AND INSTALLATION
+- Smart home and automation: Crestron, Lutron, Control4, Sonos, Josh.ai
+- Distributed AV, lighting control, home automation for high-end homes
+- AV over IP: Dante, HDMI-over-IP, NDI; managed switches (VLANs, multicast, QoS)
+- Designed and built, end to end, a corporate presentation and broadcast room:
+  two-way broadcasting, podcast studio, video mixing and DJ positions, lighting
+- Live production: video switching, live audio mixing, PTZ cameras, streaming (RTMP, SRT, HLS)
+
+SOFTWARE AND INTERFACE DESIGN
+- Mobile UI/UX: control panels "Ovi style" for music, AV, home control and AI
+- Progressive Web Apps, Android native, Chrome extensions (Manifest V3),
+  Microsoft 365 declarative agents
+- Web Audio API: spatial audio engine with HRTF panning and head tracking (17 versions)
+- GGI Control Panel: designed and shipped a 5,400-line, 41-release AI governance console
+  on Android (rotating supervisors, SHA-256 / Merkle audit trails)
+- Cross-surface deployment of one UI: Chrome extension, M365 agent, web app, Android APK
+
+LOGISTICS AND PRODUCTION
+- End-to-end project delivery for demanding residential and corporate clients
+- Crew and contractor coordination on larger projects
+- Shows run from my own rundowns and cues
+
+AI AND MUSIC
+- Built with Claude: concepts and design by me, programmed together with Claude
+- Creator of the Ten Laws of AI (10lawsofai.com) and the GGI / SYNTHIOSIS framework;
+  governance submissions to NIST and CDAO / Tradewinds (2026)
+- Cross-model evaluation: Claude, Gemini, Grok, ChatGPT
+- AI music producer: 2,000+ Suno compositions, 100+ published tracks (youtube.com/@mobiusbar)
+
+AUDIO ENGINEERING HIGHLIGHT
+Engineered and recorded "The Power of Five" with pianist Ariel Bogoslavsky, performing on
+five grand pianos at once: five microphone arrays, 25 microphones, one take per performance.
+
+EDUCATION
+High school. Learned electronics hands-on: etched boards and built radios as a kid.
+
+AVAILABILITY
+US citizen, authorized to work in the US. Full-time, on-site.
